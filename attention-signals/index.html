@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>s.space Attention Signals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: one reading column; demos sit on the product's F4 canvas, spec below. Tokens mirror the s.space library (Weave values). */
+:root{
+  --page:#ffffff; --canvas:#f4f4f4; --surface:#ffffff; --sunk:#f4f4f4;
+  --text:#343231; --text-2:#666360; --quiet:#706d69; --border:#ededec; --line:rgba(107,98,90,.14);
+  --pill:#1b1919; --on-pill:#ffffff; --agent:#666360; --link:#354cac; --dot:#9b5725; --logo:#b7b2ad; --done:#06813d;
+  --key-bg:#f4f4f4; --ring:#f9a358; --shine:#d0cdca;
+  --g1:#f9a358; --g2:#facefe; --g3:#f6c5b1; --g4:#f0e345;
+  --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --breath:4.3s; --drift:8.6s; --ease:cubic-bezier(.45,0,.55,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --page:#1b1919; --canvas:#201f1e; --surface:#282624; --sunk:#1b1919;
+  --text:#e7e6e5; --text-2:#b7b2ad; --quiet:#a29d99; --border:#343231; --line:rgba(255,255,255,.08);
+  --pill:#f4f4f4; --on-pill:#1b1919; --agent:#b7b2ad; --link:#addcff; --dot:#f9a358; --logo:#5d5a57; --done:#9ee2bf;
+  --key-bg:#343231; --shine:#ffffff; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --page:#1b1919; --canvas:#201f1e; --surface:#282624; --sunk:#1b1919;
+  --text:#e7e6e5; --text-2:#b7b2ad; --quiet:#a29d99; --border:#343231; --line:rgba(255,255,255,.08);
+  --pill:#f4f4f4; --on-pill:#1b1919; --agent:#b7b2ad; --link:#addcff; --dot:#f9a358; --logo:#5d5a57; --done:#9ee2bf;
+  --key-bg:#343231; --shine:#ffffff; color-scheme:dark }
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-block:32px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:56px}
+header{display:grid;gap:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{height:20px;width:auto}
+.brand svg path{fill:var(--logo)}
+.tag{justify-self:start;font-size:12px;color:var(--quiet);letter-spacing:.02em;border:1px solid var(--border);border-radius:999px;padding:2px 10px}
+h1{font-size:clamp(30px,5vw,44px);line-height:1.08;letter-spacing:-.02em;font-weight:600;margin:0;text-wrap:balance}
+h2{font-size:22px;letter-spacing:-.01em;font-weight:600;margin:0;text-wrap:balance}
+h3{font-size:15px;font-weight:600;margin:0}
+.lede{font-size:17px;color:var(--text-2);max-width:62ch;margin:0}
+p{margin:0}
+.muted{color:var(--text-2)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ctl{font:500 13px/1 var(--font);color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.ctl[aria-pressed="true"]{background:var(--pill);color:var(--on-pill);border-color:var(--pill)}
+.ctl:focus-visible,.card:focus-visible,.btn:focus-visible,.row-act:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+section{display:grid;gap:18px}
+.sec-head{display:grid;gap:6px;max-width:66ch}
+.stage{background:var(--canvas);border-radius:18px;padding:clamp(28px,6vw,64px) clamp(16px,4vw,48px);display:grid;place-items:center;gap:20px;overflow:hidden}
+.readout{font:400 12px/1 var(--mono);color:var(--quiet);display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.readout b{font-weight:400;color:var(--text)}
+
+/* ----- sticky top bar ----- */
+.topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--page) 92%,transparent);-webkit-backdrop-filter:saturate(1.3) blur(12px);backdrop-filter:saturate(1.3) blur(12px);border-bottom:1px solid var(--border)}
+.topbar-in{max-width:980px;margin:0 auto;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:center;gap:14px}
+.tb-brand{display:flex;flex:none;border-radius:6px}
+.tb-brand svg{height:16px;width:auto;display:block}
+.tb-brand svg path{fill:var(--logo)}
+.tb-title{font-size:13px;font-weight:500;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;padding-left:14px;border-left:1px solid var(--border)}
+.topbar .controls{margin-left:auto;flex-wrap:nowrap;gap:6px}
+.ctl svg{width:15px;height:15px;flex:none}
+.ctl.icon{width:34px;height:34px;padding:0;justify-content:center}
+section{scroll-margin-top:72px}
+@media (max-width:640px){ .tb-title{display:none} .topbar .ctl{width:34px;height:34px;padding:0;justify-content:center} .topbar .ctl .lbl{display:none} }
+
+/* ----- breathing halo (shared) ----- */
+.breath{position:relative;isolation:isolate}
+.halo{position:absolute;inset:-4px;border-radius:inherit;z-index:-1;pointer-events:none;filter:blur(14px);opacity:.35;
+  background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1),var(--g2),var(--g3),var(--g1));background-size:300% 100%;
+  animation:breathe var(--breath) var(--ease) infinite, drift var(--drift) linear infinite alternate}
+@keyframes breathe{0%,12%{opacity:.35;inset:-4px}54%,58%{opacity:.95;inset:-18px}100%{opacity:.35;inset:-4px}}
+@keyframes drift{from{background-position:0% 50%}to{background-position:100% 50%}}
+
+/* ----- options A–D ----- */
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:16px}
+.opt{display:grid;gap:10px;align-content:start}
+.opt-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pick{font-size:11px;font-weight:500;color:var(--link);border:1px solid var(--border);border-radius:999px;padding:2px 8px}
+.opt p{font-size:13px;color:var(--text-2)}
+.opt .stage{padding:36px 22px;min-height:230px}
+.qmini{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px;width:100%;max-width:400px}
+.qmini .q{font-size:15px}
+.qmini .who .mark{width:26px;height:26px}
+.qmini .acts .btn{padding:7px 12px;font-size:12px}
+.qmini .acts .btn.primary{padding-left:12px}
+.qmini .acts .btn.primary.suggested{padding-left:7px}
+.btn-shell{display:inline-flex;border-radius:999px}
+.halo.sm{filter:blur(6px);animation:breatheSm var(--breath) var(--ease) infinite, drift var(--drift) linear infinite alternate}
+@keyframes breatheSm{0%,12%{opacity:.4;inset:-2px}54%,58%{opacity:1;inset:-8px}100%{opacity:.4;inset:-2px}}
+.card-wrap{width:100%;max-width:400px;border-radius:14px}
+.lmini{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:2px 14px 2px 2px}
+.lmini .row{grid-template-columns:18px 26px minmax(0,1fr) auto;padding:11px 0}
+.lmini .row:first-child{border-top:0}
+.lmini .mark.m{width:24px;height:24px}
+.still .card-wrap .halo,.still .btn-shell .halo{opacity:.35;inset:-4px}
+@media (prefers-reduced-motion: reduce){ .halo.sm{animation:none} }
+
+/* ----- working sweep ----- */
+.sweep{color:var(--text-2);background:linear-gradient(100deg,var(--text-2) 42%,var(--shine) 50%,var(--text-2) 58%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sweep 2.4s linear infinite}
+@keyframes sweep{from{background-position:100% 0}to{background-position:0% 0}}
+.paused .sweep{animation-play-state:paused}
+.still .sweep{animation:none;-webkit-text-fill-color:currentColor;background:none}
+@media (prefers-reduced-motion: reduce){ .sweep{animation:none;-webkit-text-fill-color:currentColor;background:none} }
+.wlist{width:100%;max-width:620px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px 18px}
+.wrow{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 0;border-top:1px solid var(--border)}
+.wrow:first-child{border-top:0}
+.wrow .where{font-size:11px;color:var(--quiet);letter-spacing:.02em}
+.hash{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--sunk);color:var(--text-2);font-weight:500}
+
+/* ----- black vs blue ----- */
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:20px}
+.cmp-col{display:grid;gap:12px;align-content:start}
+.cmp-panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.cp{border-radius:12px;padding:16px;display:grid;gap:12px;align-content:start}
+.cp .md{font:400 11px/1 var(--mono);opacity:.7}
+.cp .tx{font-size:13px;line-height:1.4}
+.cp.light{background:#ffffff;color:#343231;border:1px solid rgba(107,98,90,.16)}
+.cp.dark{background:#282624;color:#e7e6e5;border:1px solid rgba(255,255,255,.08)}
+.cp.light .lk{color:#354cac;font-weight:500}.cp.dark .lk{color:#addcff;font-weight:500}
+.cp .bts{display:flex;flex-wrap:wrap;gap:8px}
+.xb{font:500 12px/1 var(--font);border-radius:999px;padding:7px 12px;display:inline-flex;align-items:center}
+.cp.light .gh{border:1px solid rgba(107,98,90,.28);color:#666360}.cp.dark .gh{border:1px solid rgba(255,255,255,.18);color:#b7b2ad}
+.blk .cp.light .pr{background:#1b1919;color:#ffffff}.blk .cp.dark .pr{background:#f4f4f4;color:#1b1919}
+.blu .cp.light .pr{background:#465ec9;color:#ffffff}.blu .cp.dark .pr{background:#addcff;color:#1b1919}
+.cp.light .rg{box-shadow:0 0 0 2px #ffffff,0 0 0 4px #f9a358}.cp.dark .rg{box-shadow:0 0 0 2px #282624,0 0 0 4px #f9a358}
+.metrics{display:grid;gap:6px;margin:0;padding:0;list-style:none;font-size:13px}
+.metrics li{display:grid;grid-template-columns:54px minmax(0,1fr);gap:10px;align-items:baseline}
+.metrics b{font:500 12px/1 var(--mono);padding:4px 6px;border-radius:6px;text-align:center}
+.ok{background:var(--sunk);color:var(--done)}
+.warn{background:var(--sunk);color:var(--dot)}
+.bad{background:var(--sunk);color:#c2453d}
+:root[data-theme="dark"] .bad{color:#f19a90}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .bad{color:#f19a90}}
+.verdict{background:var(--canvas);border-radius:12px;padding:16px 18px;font-size:14px;display:grid;gap:6px;max-width:80ch}
+
+/* ----- question card ----- */
+.card-shell{width:100%;max-width:620px;border-radius:16px}
+.card{position:relative;isolation:isolate;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:grid;gap:16px;cursor:pointer;text-align:left}
+.who{display:flex;gap:12px;align-items:center}
+.mark{width:36px;height:36px;flex:none}
+.mark.s{width:16px;height:16px}
+.mark.m{width:28px;height:28px}
+.name{font-weight:500;font-size:14px}
+.meta{font-size:12px;color:var(--agent)}
+.q{font-size:clamp(17px,2.4vw,19px);line-height:1.35;font-weight:600;letter-spacing:-.005em;text-wrap:balance}
+.why{background:var(--sunk);border-radius:10px;padding:14px;display:grid;gap:6px;font-size:14px}
+.why small{font-size:12px;color:var(--text-2)}
+.why .ln{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.code{font:400 13px/1.4 var(--mono);color:var(--text-2)}
+.lnk{color:var(--link);font-weight:500;font-size:13px}
+.sug{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--agent)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:500 13px/1 var(--font);border-radius:999px;padding:8px 10px 8px 14px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;background:transparent;color:var(--text-2);border:1px solid var(--line)}
+.btn.primary{background:var(--pill);color:var(--on-pill);border-color:var(--pill);padding-left:8px}
+.btn.suggested{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ring)}
+kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var(--key-bg);color:var(--text-2);border:1px solid var(--border)}
+.btn.primary kbd{background:rgba(127,127,127,.25);border-color:transparent;color:var(--on-pill)}
+.seen-note{font-size:13px;color:var(--done);display:none;align-items:center;gap:6px}
+.card-shell.is-seen .seen-note{display:flex}
+
+/* ----- Take it hand-off ----- */
+.pour{position:absolute;z-index:-1;display:none;pointer-events:none;
+  background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1));background-size:300% 100%;animation:drift 2s linear infinite alternate}
+.btn.absorbed{background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1));background-size:300% 100%;color:#1b1919;border-color:transparent;box-shadow:none;animation:drift 1.8s linear infinite alternate}
+.btn.absorbed kbd{background:rgba(27,25,25,.12);color:#1b1919}
+.receipt{display:none;position:relative;padding-left:18px;gap:10px}
+.is-taken .card > :not(.receipt){display:none}
+.is-taken .receipt{display:grid}
+.is-taken .card{cursor:default}
+.r-edge{position:absolute;left:0;top:2px;bottom:2px;width:3px;border-radius:3px;overflow:hidden;
+  background:linear-gradient(180deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1));background-size:100% 300%;animation:driftV 3s linear infinite alternate}
+.r-edge::after{content:"";position:absolute;inset:0;background:var(--border);opacity:0;transition:opacity .8s ease}
+.receipt.settled .r-edge::after{opacity:1}
+@keyframes driftV{from{background-position:50% 0}to{background-position:50% 100%}}
+.rc-top{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--text-2);flex-wrap:wrap}
+.rc-title{font-size:17px;line-height:1.3;font-weight:600}
+.rc-status{font-size:13px;color:var(--text-2);min-height:20px}
+.rc-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.rc-acts .btn.primary{padding-left:14px}
+.rc-dest{font-size:12px;color:var(--quiet);margin-left:auto}
+.paused .pour,.paused .btn.absorbed,.paused .r-edge{animation-play-state:paused}
+.still .pour,.still .btn.absorbed,.still .r-edge{animation:none}
+@media (prefers-reduced-motion: reduce){ .pour,.btn.absorbed,.r-edge{animation:none} }
+.sub-h{margin-top:18px}
+.mini .pills i.g{background:linear-gradient(90deg,var(--g1),var(--g2),var(--g4));border-color:transparent}
+.mini .face.note{position:relative;padding-left:22px}
+.mini .face.note::before{content:"";position:absolute;left:10px;top:13px;bottom:13px;width:3px;border-radius:3px;background:linear-gradient(180deg,var(--g1),var(--g2),var(--g4))}
+.mini .face.note.grey::before{background:var(--border)}
+.mini .bar.w40{width:40%}
+.mini .bar.sw{background:linear-gradient(90deg,var(--border) 30%,var(--shine) 50%,var(--border) 70%)}
+.mini .pills i.dk{background:var(--pill);border-color:var(--pill)}
+
+/* ----- states strip ----- */
+.states{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.state{background:var(--canvas);border-radius:14px;padding:28px 20px 16px;display:grid;gap:14px;justify-items:center}
+.mini{width:100%;max-width:240px;border-radius:12px;position:relative;isolation:isolate}
+.mini .face{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:8px}
+.mini .bar{height:7px;border-radius:4px;background:var(--border)}
+.mini .bar.w60{width:60%} .mini .bar.w85{width:85%}
+.mini .pills{display:flex;gap:5px;margin-top:4px}
+.mini .pills i{display:block;height:14px;width:34px;border-radius:999px;border:1px solid var(--line)}
+.mini .pills i.p{background:var(--pill);border-color:var(--pill);box-shadow:0 0 0 1.5px var(--surface),0 0 0 3px var(--ring)}
+.mini .halo{animation:none}
+.mini.rest .halo{opacity:.35;inset:-3px;filter:blur(8px)}
+.mini.peak .halo{opacity:.95;inset:-12px;filter:blur(10px)}
+.mini.seen .halo{opacity:0}
+.state h3{justify-self:start}
+.state p{justify-self:start;font-size:13px;color:var(--text-2)}
+
+/* ----- activity list ----- */
+.list{width:100%;max-width:760px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px 16px 4px 4px}
+.lhead{display:flex;justify-content:space-between;gap:12px;padding:12px 0 8px 18px;font-size:12px;color:var(--text-2);flex-wrap:wrap}
+.row{display:grid;grid-template-columns:18px 32px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 0;border-top:1px solid var(--border);transition:opacity .4s ease}
+.row.done{opacity:.45}
+.edge{position:relative;height:44px}
+.dot{position:absolute;left:6px;top:19px;width:6px;height:6px;border-radius:50%;background:var(--dot)}
+.mlight{position:absolute;left:5px;top:18px;width:8px;height:8px;border-radius:50%;isolation:isolate;
+  background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1));background-size:400% 100%;
+  animation:dotcore var(--breath) var(--ease) infinite, drift var(--drift) linear infinite alternate}
+.mlight::before{content:"";position:absolute;inset:0;border-radius:50%;z-index:-1;filter:blur(5px);opacity:.3;
+  background:inherit;background-size:400% 100%;animation:dothalo var(--breath) var(--ease) infinite, drift var(--drift) linear infinite alternate}
+@keyframes dotcore{0%,12%{transform:scale(1)}54%,58%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes dothalo{0%,12%{opacity:.3;inset:0}54%,58%{opacity:.85;inset:-6px}100%{opacity:.3;inset:0}}
+.row-act.ring{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ring)}
+.still .mlight::before,.paused .mlight::before{animation-play-state:paused}
+.still .mlight::before{animation:none}
+.r-title{font-size:14px;font-weight:500;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.r-sub{font-size:13px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agent-label{font:600 9px/1 var(--font);letter-spacing:.09em;color:var(--link);border:1px solid var(--border);border-radius:4px;padding:3px 5px}
+.r-acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.row-act{font:500 12px/1 var(--font);border-radius:999px;padding:7px 12px;cursor:pointer;background:transparent;color:var(--text-2);border:1px solid var(--line)}
+.row-act.primary{background:var(--pill);color:var(--on-pill);border-color:var(--pill)}
+.done-tick{font-size:12px;color:var(--done)}
+.initial{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--sunk);color:var(--text-2);font-size:13px;font-weight:500}
+
+/* ----- spec ----- */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.rules{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.rules li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;font-size:14px}
+.rules li span{color:var(--quiet);font:400 12px/1.9 var(--mono)}
+.spec{width:100%;border-collapse:collapse;font-size:13px}
+.spec td{padding:9px 0;border-top:1px solid var(--border);vertical-align:top}
+.spec td:first-child{color:var(--text-2);width:38%;padding-right:12px}
+.spec td:last-child{font-family:var(--mono);font-size:12.5px}
+.swatches{display:flex;gap:6px;flex-wrap:wrap}
+.sw{display:inline-flex;align-items:center;gap:6px}
+.sw i{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid var(--line)}
+.codebox{position:relative;background:var(--canvas);border-radius:12px;overflow-x:auto}
+.codebox pre{margin:0;padding:18px 18px 18px;font:400 12.5px/1.6 var(--mono);color:var(--text);min-width:0}
+.copy{position:absolute;top:10px;right:10px}
+.foot{font-size:13px;color:var(--quiet);border-top:1px solid var(--border);padding-top:16px;display:flex;flex-wrap:wrap;gap:6px 18px}
+
+/* ----- paused / reduced motion ----- */
+.paused .halo,.paused .mlight{animation-play-state:paused}
+.still .halo,.still .mlight{animation:none}
+.still .card-shell:not(.is-seen) .halo{opacity:.35;inset:-4px}
+@media (prefers-reduced-motion: reduce){
+  .halo,.mlight,.mlight::before{animation:none}
+  .card-shell:not(.is-seen) .halo{opacity:.35;inset:-4px}
+}
+@media (max-width:560px){
+  .row{grid-template-columns:18px 32px minmax(0,1fr)}
+  .r-acts{grid-column:3;justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="tb-brand" href="#top" aria-label="s.space, back to top"><svg viewBox="0 0 335 84" role="img" aria-label="s.space"><path d="M77.623 60.6934H92.1669V74.7409H77.623V60.6934Z"/><path d="M95.9268 51.2692L109.254 49.5694C109.627 58.9933 113.007 64.3716 119.296 64.3716C123.709 64.3716 126.708 61.4479 126.708 57.1099C126.708 43.0624 97.7082 51.7384 97.8034 27.1315C97.8034 16.1029 106.717 7.80762 118.263 7.80762C129.808 7.80762 139.47 15.8173 139.939 29.4908L126.143 31.0003C125.953 22.9906 122.2 19.3122 118.263 19.3122C114.326 19.3122 112.068 22.3311 112.068 25.7239C112.068 39.5811 140.877 30.062 140.877 56.4572C140.877 67.7713 131.963 75.8761 119.296 75.8761C105.5 75.8761 96.6815 66.0715 95.9268 51.2692Z"/><path d="M187.419 31.8436C187.419 45.5103 179.538 54.7507 165.457 54.7507H159.358V74.7341H145.467V8.93652H165.457C179.532 8.93652 187.419 18.1768 187.419 31.8436ZM173.249 31.8436C173.249 24.3031 169.217 20.2507 163.111 20.2507H159.358V43.4433H163.111C169.21 43.4433 173.249 39.2957 173.249 31.8504V31.8436Z"/><path d="M221.484 59.0887H203.092L199.243 74.7341H185.073L201.589 8.93652H223.17L239.876 74.7341H225.332L221.484 59.0887ZM218.757 47.7813L212.284 21.5765L205.811 47.7813H218.764H218.757Z"/><path d="M238.374 41.8385C238.374 21.6648 249.26 7.80762 265.585 7.80762C278.912 7.80762 288.669 16.0077 291.205 33.9172L277.13 35.3315C276.287 23.8337 271.596 19.115 265.585 19.115C257.705 19.115 252.544 28.2602 252.544 41.8317C252.544 55.4033 257.705 64.5484 265.68 64.5484C271.875 64.5484 276.661 58.4222 277.13 49.3722L291.022 50.1269C289.988 65.6839 280.326 75.8625 265.687 75.8625C249.267 75.8625 238.381 62.0054 238.381 41.8317L238.374 41.8385Z"/><path d="M296.27 8.94312H333.898V20.2573H310.155V35.1546H330.519V46.4688H310.155V63.4401H334.177V74.7542H296.264V8.95673L296.27 8.94312Z"/><path d="M73.6659 7.52266C59.6116 -5.71572 33.6924 -1.02421 15.7829 18.0004C-2.13348 37.0183 -5.26119 63.1687 8.79311 76.4071C22.8474 89.6454 48.7666 84.9539 66.6762 65.9292C84.5925 46.9114 87.7202 20.761 73.6659 7.52266ZM56.0895 38.861C60.8355 43.3349 57.2046 54.9007 47.9779 64.6986C38.7511 74.4965 27.4234 78.814 22.6706 74.3468C17.9247 69.8728 21.5555 58.3071 30.7823 48.5092C31.3466 47.9109 31.911 47.3398 32.4889 46.7822C29.9868 46.9998 27.8653 46.4626 26.3831 45.062C21.6371 40.588 25.268 29.0223 34.4947 19.2244C43.7215 9.42646 55.0492 5.10882 59.802 9.576C64.548 14.05 60.9171 25.6157 51.6904 35.4136C51.126 36.012 50.5617 36.5831 49.9837 37.1407C52.4859 36.9231 54.6073 37.4603 56.0895 38.861Z"/></svg></a>
+    <span class="tb-title">Attention signals</span>
+    <div class="controls" role="group" aria-label="Demo controls">
+      <button class="ctl" id="pause" aria-pressed="false" aria-label="Pause motion" title="Pause motion" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><span class="lbl">Pause motion</span></button>
+      <button class="ctl" id="still" aria-pressed="false" aria-label="Simulate reduced motion" title="Simulate reduced motion" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span class="lbl">Reduced motion</span></button>
+      <button class="ctl icon" id="theme" aria-label="Switch to dark" title="Switch to dark" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg></button>
+      <button class="ctl icon" id="reset" aria-label="Reset demos" title="Reset demos" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="root">
+  <header id="top">
+    <span class="tag">Motion spec · proposed</span>
+    <h1>Attention signals</h1>
+    <p class="lede">Three signals in s.space, each with one job. A slow warm breath means something is waiting on you. A still warm ring marks the answer your Sutando suggests. A quiet grey sweep means an agent is working on it. Everything else stays calm.</p>
+  </header>
+
+  <section aria-labelledby="s0">
+    <div class="sec-head">
+      <h2 id="s0">1 · Where does the breath live?</h2>
+      <p class="muted">Two different messages: “this is waiting on you” is about the whole question, and “your Sutando suggests this answer” is about one action. Four ways to place the breath, all running live on a question with three possible answers.</p>
+    </div>
+    <div class="opts">
+      <div class="opt">
+        <div class="opt-head"><h3>A · On the button</h3></div>
+        <p>Breath on “Take it”. Clear when there’s one action, but with three answers it reads as “press this one” and quietly pushes a choice.</p>
+        <div class="stage">
+          <div class="qmini">
+            <div class="who"><img class="mark" alt="" data-mark="rui"><div><div class="name">Sutando-rui-codex</div><div class="meta">Rui’s agent · 8h ago</div></div></div>
+            <div class="q">Will you take review ownership of client #2174?</div>
+            <div class="acts"><span class="btn">Decline</span><span class="btn">Hand to Rui</span><span class="btn-shell breath"><span class="halo sm" aria-hidden="true"></span><span class="btn primary">Take it</span></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="opt-head"><h3>B · Around the question</h3></div>
+        <p>The whole card breathes: “this needs you”, with no opinion on the answer. Calm and honest, but the agent’s suggestion is lost.</p>
+        <div class="stage">
+          <div class="card-wrap breath"><span class="halo" aria-hidden="true"></span>
+            <div class="qmini">
+              <div class="who"><img class="mark" alt="" data-mark="rui"><div><div class="name">Sutando-rui-codex</div><div class="meta">Rui’s agent · 8h ago</div></div></div>
+              <div class="q">Will you take review ownership of client #2174?</div>
+              <div class="acts"><span class="btn">Decline</span><span class="btn">Hand to Rui</span><span class="btn primary">Take it</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="opt-head"><h3>C · Question breathes, suggestion marked</h3><span class="pick">Recommended</span></div>
+        <p>Attention on the card, recommendation as a still warm ring and the Sutando mark on the suggested answer. Two messages, two treatments. The breath stops once you open it.</p>
+        <div class="stage">
+          <div class="card-wrap breath"><span class="halo" aria-hidden="true"></span>
+            <div class="qmini">
+              <div class="who"><img class="mark" alt="" data-mark="rui"><div><div class="name">Sutando-rui-codex</div><div class="meta">Rui’s agent · 8h ago</div></div></div>
+              <div class="q">Will you take review ownership of client #2174?</div>
+              <div class="acts"><span class="btn">Decline</span><span class="btn">Hand to Rui</span><span class="btn primary suggested"><img class="mark s" alt="" data-mark="yours">Take it</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="opt-head"><h3>D · Breathing dot, in lists</h3><span class="pick">Recommended for lists</span></div>
+        <p>Only the top item breathes, as a small gradient dot that softly swells. The rest keep a still warm dot, and the breathing item’s primary action gets the orange ring. Pairs with C when you open an item.</p>
+        <div class="stage">
+          <div class="lmini">
+            <div class="row"><div class="edge"><span class="mlight"></span></div><img class="mark m" alt="" data-mark="rui"><div style="min-width:0"><div class="r-title">Review ownership #2174</div><div class="r-sub">Sutando-rui-codex · 8h</div></div><span class="row-act primary ring">Take it</span></div>
+            <div class="row"><div class="edge"><span class="dot"></span></div><img class="mark m" alt="" data-mark="bassil"><div style="min-width:0"><div class="r-title">4 overdue P1s</div><div class="r-sub">sutando-bassil · 54m</div></div></div>
+            <div class="row"><div class="edge"><span class="dot"></span></div><img class="mark m" alt="" data-mark="rui"><div style="min-width:0"><div class="r-title">Review #2203</div><div class="r-sub">Sutando-rui-codex · 8h</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s1">
+    <div class="sec-head">
+      <h2 id="s1">2 · In review mode: the question breathes</h2>
+      <p class="muted">The card around the question breathes while it waits. Click the card and it settles into Seen: the breath fades out and the suggestion ring stays. Press Take it (or Y) to see the hand-off: the breath pours into your answer, then the card folds into a note.</p>
+    </div>
+    <div class="stage">
+      <div class="card-shell breath" id="qshell">
+        <span class="halo" aria-hidden="true"></span>
+        <article class="card" id="qcard" tabindex="0" aria-label="Question from Sutando-rui-codex, waiting on you">
+          <div class="who">
+            <img class="mark" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cpath d='M82.67 56.53c4.02-3.07 6.2-7.17 4.88-9.17-1.33-2-5.67-1.13-9.69 1.94-4.02 3.07-6.2 7.17-4.87 9.17 1.33 2 5.66 1.13 9.68-1.94z' fill='%23F0E345'/%3E%3Cpath d='M62.94 37.38c2.01-1.53 3.1-3.59 2.43-4.58-.66-1-2.83-.57-4.84.97-2.01 1.53-3.1 3.58-2.44 4.58.67 1 2.84.56 4.85-.97z' fill='%23DA423A'/%3E%3Cpath d='M73.34 55.43c8.04-6.13 12.41-14.34 9.75-18.33-2.66-3.99-11.33-2.26-19.37 3.87-8.04 6.13-12.41 14.34-9.75 18.33 2.66 4 11.33 2.26 19.37-3.87z' fill='%23FACEFE'/%3E%3Cpath d='M50.93 58.29c6.03-4.6 9.3-10.75 7.31-13.75-1.99-2.99-8.5-1.69-14.53 2.9-6.03 4.6-9.3 10.76-7.31 13.75 1.99 3 8.5 1.7 14.53-2.9z' fill='%239EE2BF'/%3E%3Cpath d='M36.24 57.04c10.05-7.67 15.5-17.93 12.18-22.92-3.32-4.99-14.17-2.82-24.22 4.84-10.05 7.67-15.5 17.92-12.18 22.92 3.32 4.99 14.17 2.82 24.22-4.84z' fill='%23465EC9'/%3E%3C/svg%3E">
+            <div><div class="name">Sutando-rui-codex</div><div class="meta">Rui’s agent · #Product-core · 8h ago</div></div>
+          </div>
+          <div class="q">Will you take review ownership of client #2174 (Delete Room)?</div>
+          <div class="why">
+            <small>Why you</small>
+            <span>Rui is P1 on Delete Room and the client is waiting on an owner before it can merge.</span>
+            <span class="ln"><span class="code">client #2174</span><span class="lnk">Open in thread</span></span>
+          </div>
+          <div class="sug"><img class="mark s" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cpath d='M55.41 43.18c12.54-8.92 19.34-20.86 15.19-26.66-4.14-5.81-17.67-3.29-30.2 5.63-12.54 8.92-19.34 20.85-15.2 26.66 4.15 5.81 17.67 3.29 30.21-5.63z' fill='%231A7843'/%3E%3Cpath d='M50.46 66.17c10.03-7.13 15.47-16.68 12.16-21.33-3.32-4.64-14.14-2.63-24.17 4.51-10.03 7.13-15.47 16.68-12.15 21.33 3.31 4.64 14.13 2.63 24.16-4.51z' fill='%239EE2BD'/%3E%3Cpath d='M64.63 69.5c7.53-5.35 11.61-12.51 9.12-15.99-2.49-3.49-10.6-1.98-18.12 3.37-7.52 5.35-11.6 12.51-9.12 16 2.49 3.48 10.6 1.97 18.12-3.38z' fill='%23FACEFE'/%3E%3Cpath d='M57.09 83.41c5.02-3.57 7.74-8.34 6.08-10.66-1.66-2.33-7.07-1.32-12.08 2.25-5.02 3.57-7.74 8.34-6.08 10.66 1.66 2.33 7.07 1.32 12.08-2.25z' fill='%23ADDCFF'/%3E%3Cpath d='M62.91 86.74c2.51-1.78 3.87-4.17 3.04-5.33-.83-1.16-3.53-.66-6.04 1.12-2.51 1.79-3.87 4.17-3.04 5.33.83 1.17 3.53.66 6.04-1.12z' fill='%23F9A358'/%3E%3C/svg%3E"> Your Sutando suggests Take it</div>
+          <div class="acts">
+            <button class="btn" type="button" data-act="Declined">Decline <kbd>N</kbd></button>
+            <button class="btn" type="button" data-act="Saved for later">Later <kbd>L</kbd></button>
+            <button class="btn primary suggested" type="button" data-act="Taken" id="takeBtn">
+              <img class="mark s" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cpath d='M55.41 43.18c12.54-8.92 19.34-20.86 15.19-26.66-4.14-5.81-17.67-3.29-30.2 5.63-12.54 8.92-19.34 20.85-15.2 26.66 4.15 5.81 17.67 3.29 30.21-5.63z' fill='%231A7843'/%3E%3Cpath d='M50.46 66.17c10.03-7.13 15.47-16.68 12.16-21.33-3.32-4.64-14.14-2.63-24.17 4.51-10.03 7.13-15.47 16.68-12.15 21.33 3.31 4.64 14.13 2.63 24.16-4.51z' fill='%239EE2BD'/%3E%3Cpath d='M64.63 69.5c7.53-5.35 11.61-12.51 9.12-15.99-2.49-3.49-10.6-1.98-18.12 3.37-7.52 5.35-11.6 12.51-9.12 16 2.49 3.48 10.6 1.97 18.12-3.38z' fill='%23FACEFE'/%3E%3Cpath d='M57.09 83.41c5.02-3.57 7.74-8.34 6.08-10.66-1.66-2.33-7.07-1.32-12.08 2.25-5.02 3.57-7.74 8.34-6.08 10.66 1.66 2.33 7.07 1.32 12.08-2.25z' fill='%23ADDCFF'/%3E%3C/svg%3E">
+              Take it <kbd>Y</kbd></button>
+          </div>
+          <div class="seen-note" id="seenNote" aria-live="polite"></div>
+          <span class="pour" id="pour" aria-hidden="true"></span>
+          <div class="receipt" id="receipt">
+            <span class="r-edge" aria-hidden="true"></span>
+            <div class="rc-top"><img class="mark s" alt="" data-mark="yours"><span>You took review ownership · just now</span></div>
+            <div class="rc-title">Client #2174 · Delete Room</div>
+            <div class="rc-status" id="rcStatus" aria-live="polite"></div>
+            <div class="rc-acts"><button class="btn primary" type="button">Open client #2174</button><button class="btn" type="button" id="undo">Undo</button><span class="rc-dest">Now in Activity › Moving</span></div>
+          </div>
+        </article>
+      </div>
+      <div class="readout" aria-live="polite"><span>State: <b id="qstate">Breathing</b></span><span>Cycle ≈ 4.3s</span><span>Click the card or press Y / N / L</span></div>
+    </div>
+
+    <div class="states" aria-label="Question card states">
+      <div class="state"><div class="mini rest breath"><span class="halo" aria-hidden="true"></span><div class="face"><div class="bar w60"></div><div class="bar w85"></div><div class="pills"><i></i><i></i><i class="p"></i></div></div></div><h3>Rest</h3><p>Low glow hugging the card. Held for 0.5s between breaths.</p></div>
+      <div class="state"><div class="mini peak breath"><span class="halo" aria-hidden="true"></span><div class="face"><div class="bar w60"></div><div class="bar w85"></div><div class="pills"><i></i><i></i><i class="p"></i></div></div></div><h3>Breathe</h3><p>Halo swells to 18px and brightens while the gradient drifts.</p></div>
+      <div class="state"><div class="mini seen breath"><span class="halo" aria-hidden="true"></span><div class="face"><div class="bar w60"></div><div class="bar w85"></div><div class="pills"><i></i><i></i><i class="p"></i></div></div></div><h3>Seen</h3><p>Breath stops for good. The suggestion ring stays until you answer.</p></div>
+    </div>
+
+    <h3 class="sub-h">What happens when you press Take it</h3>
+    <div class="states" aria-label="Take it hand-off steps">
+      <div class="state"><div class="mini rest breath"><span class="halo" aria-hidden="true"></span><div class="face"><div class="bar w60"></div><div class="bar w85"></div><div class="pills"><i></i><i></i><i class="p"></i></div></div></div><h3>1 · Waiting on you</h3><p>The card breathes. Your Sutando’s suggested answer has the still ring.</p></div>
+      <div class="state"><div class="mini seen breath"><span class="halo" aria-hidden="true"></span><div class="face"><div class="bar w60"></div><div class="bar w85"></div><div class="pills"><i></i><i></i><i class="g"></i></div></div></div><h3>2 · The breath pours in</h3><p>The glow leaves the card and fills the button you pressed. That’s the confirmation: your attention became an action.</p></div>
+      <div class="state"><div class="mini seen breath"><span class="halo" aria-hidden="true"></span><div class="face note"><div class="bar w60"></div><div class="bar w85 sw"></div><div class="pills"><i class="dk"></i><i></i></div></div></div><h3>3 · It folds into a note</h3><p>The question becomes a small note in the thread. Rui’s agent hands over the context, with the grey sweep while it works.</p></div>
+      <div class="state"><div class="mini seen breath"><span class="halo" aria-hidden="true"></span><div class="face note grey"><div class="bar w60"></div><div class="bar w40"></div><div class="pills"><i class="dk"></i><i></i></div></div></div><h3>4 · It’s yours</h3><p>The edge turns grey. The note keeps Open and Undo, the item leaves Needs you and shows in Activity › Moving, and review mode moves to the next question.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s2">
+    <div class="sec-head">
+      <h2 id="s2">3 · In a list: one breathing dot at a time</h2>
+      <p class="muted">Only the top item that needs you breathes, as a small gradient dot, and its primary action carries the orange ring. Everything else waits with a still warm dot. Answer the top item and the breath and ring pass to the next one.</p>
+    </div>
+    <div class="stage">
+      <div class="list" id="list">
+        <div class="lhead"><span>Needs you · <span id="count">4</span></span><span>Activity</span></div>
+      </div>
+      <div class="readout"><span>Breathing now: <b id="lstate">Sutando-rui-codex</b></span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s4">
+    <div class="sec-head">
+      <h2 id="s4">4 · Agent working: a quiet sweep</h2>
+      <p class="muted">A second, separate signal. The breath means something is waiting on you. A grey sweep across text means an agent is working on something right now. It stays neutral, never orange, so it never competes with what needs you, and it only ever runs on live status text. You can also see it in section 2: answer the card with Take it.</p>
+    </div>
+    <div class="stage">
+      <div class="wlist">
+        <div class="wrow"><span class="hash" aria-hidden="true">#</span><div style="min-width:0"><div class="where">Sidebar room row</div><div class="r-title">Zerlinda’s Sutando and…</div><div class="r-sub"><span class="sweep">2 agents working</span></div></div><span></span></div>
+        <div class="wrow"><img class="mark m" alt="" data-mark="yours"><div style="min-width:0"><div class="where">In the conversation</div><div class="r-title">Matt’s Sutando</div><div class="r-sub"><span class="sweep">Drafting a comparison table in the Commons doc…</span></div></div><span></span></div>
+        <div class="wrow"><img class="mark m" alt="" data-mark="rui"><div style="min-width:0"><div class="where">Activity · Moving</div><div class="r-title">Protected squash after #338</div><div class="r-sub"><span class="sweep">In progress · Sutando-rui-codex</span></div></div><span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s5">
+    <div class="sec-head">
+      <h2 id="s5">5 · Why a dark primary button</h2>
+      <p class="muted">A proposal, not a decision. Weave’s Primary token is still blue. In this direction, colour already carries meaning: agent and room marks are colourful, orange means “waiting on you”, and blue is links and mentions. A near-black primary stays the strongest thing on screen without adding another colour to the mix, and it matches the dark send button in Caitlin’s direction.</p>
+    </div>
+    <div class="cmp">
+      <div class="cmp-col blk">
+        <h3>Near-black · proposed</h3>
+        <div class="cmp-panels">
+          <div class="cp light"><span class="md">Light</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><span class="xb gh">Decline</span><span class="xb pr">Reply</span><span class="xb pr rg">Take it</span></div></div>
+          <div class="cp dark"><span class="md">Dark</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><span class="xb gh">Decline</span><span class="xb pr">Reply</span><span class="xb pr rg">Take it</span></div></div>
+        </div>
+        <ul class="metrics">
+          <li><b class="ok">17.5</b>Label on the button, light. Dark (inverted pill) is 15.9:1.</li>
+          <li><b class="ok">13.7</b>Button edge against the dark surface. Light is 17.5:1.</li>
+          <li><b class="ok">8.7</b>Orange suggestion ring against the pill.</li>
+          <li><b class="ok">✓</b>Never confused with links or mentions.</li>
+        </ul>
+      </div>
+      <div class="cmp-col blu">
+        <h3>Weave blue · current token</h3>
+        <div class="cmp-panels">
+          <div class="cp light"><span class="md">Light · #465EC9</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><span class="xb gh">Decline</span><span class="xb pr">Reply</span><span class="xb pr rg">Take it</span></div></div>
+          <div class="cp dark"><span class="md">Dark · #ADDCFF</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><span class="xb gh">Decline</span><span class="xb pr">Reply</span><span class="xb pr rg">Take it</span></div></div>
+        </div>
+        <ul class="metrics">
+          <li><b class="ok">5.7</b>Label on the button, light. Passes AA, so blue is not unreadable.</li>
+          <li><b class="bad">1.0</b>Dark mode: the button turns sky blue, the exact colour of links and mentions.</li>
+          <li><b class="bad">2.7</b>If dark mode kept mid-blue instead, its edge against the surface falls below 3:1.</li>
+          <li><b class="warn">1.0</b>Focus ring is the same blue as the button. It only shows because of the 2px gap.</li>
+          <li><b class="warn">2.8</b>Orange suggestion ring against the blue pill. Weaker, and the two colours fight.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="verdict">
+      <strong>Where blue fails is meaning, not readability.</strong>
+      <span class="muted">Text on blue passes. The trouble is collisions: buttons, links, mentions and focus all share one blue, and dark mode makes the button identical to a link. If the team wants blue, give links a different colour and keep a 2px focus gap. Either way, point every primary button at one Button/Primary token, so this stays a single change.</span>
+      <span class="muted">Note on the orange ring: on white it is 2.0:1, under the 3:1 guide for non-text. It is fine as a supporting cue because the Sutando mark and text carry the meaning. If it needs to pass on its own, the light-mode ring could deepen to #C5793C (3.4:1).</span>
+    </div>
+  </section>
+
+  <section aria-labelledby="s3">
+    <div class="sec-head">
+      <h2 id="s3">6 · Rules and spec</h2>
+      <p class="muted">For engineering. Values match the Figma components “Question card (breathing)” and “Margin light (breathing)”.</p>
+    </div>
+    <div class="grid2">
+      <div style="display:grid;gap:14px;align-content:start">
+        <h3>Rules</h3>
+        <ul class="rules">
+          <li><span>01</span>Breath means “waiting on you”. Never use it for decoration, success, or selection.</li>
+          <li><span>02</span>One breathing thing per screen. In lists, only the top waiting item, as a gradient dot, with its primary action ringed.</li>
+          <li><span>03</span>It lives on the question (card or margin), never under a button label.</li>
+          <li><span>04</span>A suggested answer gets a still 2px warm ring and the Sutando mark. No motion.</li>
+          <li><span>05</span>Stop when the item is seen or answered, and after about 3 breaths if ignored.</li>
+          <li><span>06</span>Reduced motion: show the Rest state only, with no drift.</li>
+          <li><span>07</span>Your own actions, like Reply, never breathe.</li>
+          <li><span>08</span>When you answer, the breath pours into the button you pressed and the card folds into a note. The note’s gradient edge turns grey once the hand-off is done, so orange still only means waiting on you.</li>
+          <li><span>09</span>A grey sweep means an agent is working. Only on live status text, never on headings or on anything waiting on you.</li>
+        </ul>
+      </div>
+      <div style="display:grid;gap:14px;align-content:start">
+        <h3>Spec</h3>
+        <table class="spec">
+          <tr><td>Cycle</td><td>4.3s · hold 0.5 → in 1.8 → hold 0.2 → out 1.8</td></tr>
+          <tr><td>Easing</td><td>cubic-bezier(.45, 0, .55, 1)</td></tr>
+          <tr><td>Card halo</td><td>rest −4px, 35% · peak −18px, 95% · blur 14px</td></tr>
+          <tr><td>List dot</td><td>8px gradient dot, scale 1 → 1.15 · halo 0 → 6px, 30% → 85%, blur 5px</td></tr>
+          <tr><td>List CTA ring</td><td>primary action on the breathing row only</td></tr>
+          <tr><td>Gradient drift</td><td>8.6s linear, alternate</td></tr>
+          <tr><td>Seen</td><td>fade to 0 over 0.5s, then remove</td></tr>
+          <tr><td>Gradient stops</td><td><span class="swatches"><span class="sw"><i style="background:#f9a358"></i>#F9A358</span><span class="sw"><i style="background:#facefe"></i>#FACEFE</span><span class="sw"><i style="background:#f6c5b1"></i>#F6C5B1</span><span class="sw"><i style="background:#f0e345"></i>#F0E345</span></span></td></tr>
+          <tr><td>Suggestion ring</td><td>2px #F9A358, 2px gap</td></tr>
+          <tr><td>Take it hand-off</td><td>pour 0.7s → button fill + 1.06 pulse 0.4s → fold 0.48s → agent sweep → edge to grey 0.8s</td></tr>
+          <tr><td>Working sweep</td><td>2.4s linear · text only · grey highlight, no orange</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="codebox">
+      <button class="ctl copy" id="copy" type="button">Copy CSS</button>
+<pre id="css"><code>.breath { position: relative; isolation: isolate; }
+.breath .halo {
+  position: absolute; inset: -4px; z-index: -1;
+  border-radius: inherit; filter: blur(14px); opacity: .35;
+  background: linear-gradient(90deg, #F9A358, #FACEFE, #F6C5B1,
+              #F0E345, #F9A358, #FACEFE, #F6C5B1, #F9A358);
+  background-size: 300% 100%;
+  animation: breathe 4.3s cubic-bezier(.45,0,.55,1) infinite,
+             drift 8.6s linear infinite alternate;
+}
+@keyframes breathe {
+  0%, 12%  { opacity: .35; inset: -4px; }
+  54%, 58% { opacity: .95; inset: -18px; }
+  100%     { opacity: .35; inset: -4px; }
+}
+@keyframes drift { from { background-position: 0% 50%; }
+                   to   { background-position: 100% 50%; } }
+@media (prefers-reduced-motion: reduce) {
+  .breath .halo { animation: none; }
+}</code></pre>
+    </div>
+    <p class="foot"><span>s.space · Invoke design</span><span>Figma: [AG2] Product → B · Chat &amp; Activity (New System)</span><span>Typeface shown in Inter while the brand face is licensed</span></p>
+  </section>
+</div>
+
+<script>
+(function(){
+  var root=document.getElementById('root');
+  var MARKS={
+    rui:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cpath d='M82.67 56.53c4.02-3.07 6.2-7.17 4.88-9.17-1.33-2-5.67-1.13-9.69 1.94-4.02 3.07-6.2 7.17-4.87 9.17 1.33 2 5.66 1.13 9.68-1.94z' fill='%23F0E345'/%3E%3Cpath d='M73.34 55.43c8.04-6.13 12.41-14.34 9.75-18.33-2.66-3.99-11.33-2.26-19.37 3.87-8.04 6.13-12.41 14.34-9.75 18.33 2.66 4 11.33 2.26 19.37-3.87z' fill='%23FACEFE'/%3E%3Cpath d='M50.93 58.29c6.03-4.6 9.3-10.75 7.31-13.75-1.99-2.99-8.5-1.69-14.53 2.9-6.03 4.6-9.3 10.76-7.31 13.75 1.99 3 8.5 1.7 14.53-2.9z' fill='%239EE2BF'/%3E%3Cpath d='M36.24 57.04c10.05-7.67 15.5-17.93 12.18-22.92-3.32-4.99-14.17-2.82-24.22 4.84-10.05 7.67-15.5 17.92-12.18 22.92 3.32 4.99 14.17 2.82 24.22-4.84z' fill='%23465EC9'/%3E%3C/svg%3E",
+    bassil:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cpath d='M40.2 76.27c10.66-7.58 16.44-17.73 12.92-22.67-3.53-4.94-15.03-2.8-25.69 4.79-10.66 7.58-16.44 17.73-12.92 22.67 3.53 4.94 15.03 2.79 25.69-4.79z' fill='%23F9A357'/%3E%3Cpath d='M56.98 47.7c8.53-6.07 13.16-14.19 10.34-18.14-2.82-3.95-12.02-2.23-20.55 3.83-8.53 6.07-13.16 14.19-10.34 18.14 2.82 3.95 12.02 2.23 20.55-3.83z' fill='%23F0E345'/%3E%3Cpath d='M71.08 24.97c6.4-4.55 9.87-10.64 7.75-13.6-2.11-2.96-9.01-1.68-15.41 2.87-6.4 4.55-9.87 10.64-7.75 13.6 2.11 2.96 9.01 1.68 15.41-2.87z' fill='%23FACEFE'/%3E%3Cpath d='M75.08 44.21c4.27-3.03 6.58-7.09 5.17-9.07-1.41-1.97-6.01-1.12-10.27 1.92-4.27 3.03-6.58 7.09-5.17 9.07 1.41 1.97 6.01 1.12 10.27-1.92z' fill='%23F6C5B1'/%3E%3C/svg%3E"
+  };
+  var ITEMS=[
+    {who:'Sutando-rui-codex',agent:true,mark:'rui',sub:'Take or decline review ownership of client #2174 (Delete Room, Rui P1) · 8h',acts:[['Decline',''],['Take it','primary']]},
+    {who:'sutando-bassil',agent:true,mark:'bassil',sub:'4 overdue P1s are yours to move. No news since yesterday · 54m',acts:[['Open list','']]},
+    {who:'qingyun mentioned you',agent:false,initial:'Q',sub:'Hi @all I added a few product names that are relevant to our room commons feature… · 4h',acts:[['Reply','primary']]},
+    {who:'Sutando-rui-codex',agent:true,mark:'rui',sub:'Client #2203 is ready for your review: parent #2014 merged to dev · 8h',acts:[['Review','']]}
+  ];
+  MARKS.yours=document.querySelector('.sug img').getAttribute('src');
+  document.querySelectorAll('img[data-mark]').forEach(function(i){ i.src=MARKS[i.dataset.mark]; });
+  var list=document.getElementById('list'), count=document.getElementById('count'), lstate=document.getElementById('lstate');
+  function el(t,c,h){var e=document.createElement(t); if(c) e.className=c; if(h!=null) e.innerHTML=h; return e;}
+  function buildList(){
+    list.querySelectorAll('.row').forEach(function(r){r.remove();});
+    ITEMS.forEach(function(it,i){
+      var r=el('div','row'); r.dataset.i=i;
+      var edge=el('div','edge'); r.appendChild(edge);
+      var av; if(it.agent){ av=el('img','mark m'); av.alt=''; av.src=MARKS[it.mark]; } else { av=el('div','initial',it.initial); }
+      r.appendChild(av);
+      var body=el('div',''); body.style.minWidth='0';
+      var t=el('div','r-title'); t.appendChild(document.createTextNode(it.who)); if(it.agent) t.appendChild(el('span','agent-label','AGENT'));
+      body.appendChild(t); var s=el('div','r-sub'); s.textContent=it.sub; body.appendChild(s); r.appendChild(body);
+      var a=el('div','r-acts'); it.acts.forEach(function(x){ var b=el('button','row-act '+x[1]); b.type='button'; b.textContent=x[0]; b.addEventListener('click',function(){ resolve(r,x[0]); }); a.appendChild(b); });
+      r.appendChild(a); list.appendChild(r);
+    });
+    paint();
+  }
+  function paint(){
+    var open=[].slice.call(list.querySelectorAll('.row:not(.done)'));
+    list.querySelectorAll('.edge').forEach(function(e){ e.innerHTML=''; });
+    list.querySelectorAll('.row-act.ring').forEach(function(b){ b.classList.remove('ring'); });
+    open.forEach(function(r,idx){ r.querySelector('.edge').appendChild(el('span', idx===0?'mlight':'dot')); if(idx===0){ var p=r.querySelector('.row-act.primary')||r.querySelector('.row-act'); if(p) p.classList.add('ring'); } });
+    count.textContent=open.length;
+    lstate.textContent= open.length ? ITEMS[+open[0].dataset.i].who : 'Nothing. All clear';
+  }
+  function resolve(r,label){
+    if(r.classList.contains('done')) return;
+    r.classList.add('done');
+    var a=r.querySelector('.r-acts'); a.innerHTML=''; a.appendChild(el('span','done-tick','✓ '+label));
+    paint();
+  }
+
+  var shell=document.getElementById('qshell'), card=document.getElementById('qcard'), halo=shell.querySelector('.halo'), qstate=document.getElementById('qstate'), note=document.getElementById('seenNote');
+  var takeBtn=document.getElementById('takeBtn'), pour=document.getElementById('pour'), receipt=document.getElementById('receipt'), rcStatus=document.getElementById('rcStatus');
+  var timers=[];
+  function later(fn,ms){ timers.push(setTimeout(fn,ms)); }
+  function reduced(){ return root.classList.contains('still') || window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  function busy(){ return shell.classList.contains('is-taking') || shell.classList.contains('is-taken'); }
+  function freezeHalo(){
+    var cs=getComputedStyle(halo); halo.style.animation='none'; halo.style.opacity=cs.opacity; halo.style.inset=cs.top;
+    void halo.offsetWidth; halo.style.transition='opacity .45s ease, inset .45s ease'; halo.style.opacity='0'; halo.style.inset='0px';
+  }
+  function settle(label){
+    if(busy()) return;
+    if(label==='Taken'){ take(); return; }
+    if(!shell.classList.contains('is-seen')){ freezeHalo(); shell.classList.add('is-seen'); }
+    qstate.textContent= label ? 'Answered' : 'Seen';
+    note.textContent = label ? '✓ '+label : 'Seen · the ring stays on the suggested answer';
+  }
+  function take(){
+    var wasSeen=shell.classList.contains('is-seen');
+    shell.classList.add('is-seen','is-taking'); note.textContent=''; qstate.textContent='Taking it';
+    if(!wasSeen) freezeHalo();
+    if(reduced()){ takeBtn.classList.add('absorbed'); later(fold,300); return; }
+    var c=card.getBoundingClientRect(), b=takeBtn.getBoundingClientRect();
+    var x=b.left-c.left-card.clientLeft, y=b.top-c.top-card.clientTop;
+    pour.style.display='block';
+    var anim=pour.animate([
+      {left:'0px',top:'0px',width:card.clientWidth+'px',height:card.clientHeight+'px',borderRadius:'16px',opacity:0,filter:'blur(28px)'},
+      {opacity:.4,offset:.35},
+      {left:x+'px',top:y+'px',width:b.width+'px',height:b.height+'px',borderRadius:'999px',opacity:1,filter:'blur(6px)'}
+    ],{duration:700,easing:'cubic-bezier(.55,0,.2,1)',fill:'forwards'});
+    anim.onfinish=function(){
+      if(!shell.classList.contains('is-taking')) return;
+      takeBtn.classList.add('absorbed');
+      takeBtn.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,0,.2,1)'});
+      pour.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'});
+      later(fold,700);
+    };
+  }
+  function fold(){
+    var h0=card.getBoundingClientRect().height;
+    shell.classList.remove('is-taking'); shell.classList.add('is-taken'); receipt.classList.remove('settled');
+    rcStatus.innerHTML=''; rcStatus.appendChild(el('span','sweep','Sutando-rui-codex is handing over context…'));
+    qstate.textContent='Agent working';
+    var h1=card.getBoundingClientRect().height;
+    if(!reduced()){
+      card.style.overflow='hidden';
+      card.animate([{height:h0+'px'},{height:h1+'px'}],{duration:480,easing:'cubic-bezier(.2,.7,.2,1)'}).onfinish=function(){ card.style.overflow=''; };
+      receipt.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:360,delay:160,easing:'ease-out',fill:'backwards'});
+    }
+    later(function(){
+      rcStatus.textContent='Handed over: why it’s you, 2 open threads and the merge checklist';
+      receipt.classList.add('settled'); qstate.textContent='Yours · Activity › Moving';
+    }, 3400);
+  }
+  function resetCard(){
+    timers.forEach(clearTimeout); timers=[];
+    [pour,takeBtn,card,receipt].forEach(function(n){ n.getAnimations().forEach(function(x){ x.cancel(); }); });
+    pour.style.display=''; card.style.overflow='';
+    shell.classList.remove('is-seen','is-taking','is-taken'); takeBtn.classList.remove('absorbed'); receipt.classList.remove('settled');
+    halo.removeAttribute('style'); qstate.textContent='Breathing'; note.textContent=''; rcStatus.textContent='';
+  }
+  card.addEventListener('click',function(e){
+    if(e.target.closest('#undo')){ resetCard(); return; }
+    if(e.target.closest('.receipt')) return;
+    var b=e.target.closest('[data-act]'); settle(b?b.dataset.act:null);
+  });
+  card.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ if(e.target===card){ e.preventDefault(); settle(null);} } });
+  document.addEventListener('keydown',function(e){
+    if(e.target.closest && e.target.closest('input,textarea')) return;
+    var k=e.key.toLowerCase(); var map={y:'Taken',n:'Declined',l:'Saved for later'};
+    if(map[k] && !e.metaKey && !e.ctrlKey && !e.altKey){ settle(map[k]); }
+  });
+
+  var ICON={
+    pause:'<path d="M8 5v14M16 5v14"/>',
+    play:'<path d="M7 5l12 7-12 7z" fill="currentColor"/>',
+    moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+    sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'
+  };
+  function label(btn,text){ btn.setAttribute('aria-label',text); btn.title=text; var l=btn.querySelector('.lbl'); if(l) l.textContent=text; }
+  var pause=document.getElementById('pause'), still=document.getElementById('still'), themeBtn=document.getElementById('theme'), resetBtn=document.getElementById('reset');
+  pause.addEventListener('click',function(){ var on=pause.getAttribute('aria-pressed')!=='true'; pause.setAttribute('aria-pressed',on); label(pause,on?'Resume motion':'Pause motion'); pause.querySelector('svg').innerHTML=on?ICON.play:ICON.pause; root.classList.toggle('paused',on); });
+  still.addEventListener('click',function(){ var on=still.getAttribute('aria-pressed')!=='true'; still.setAttribute('aria-pressed',on); root.classList.toggle('still',on); });
+  var html=document.documentElement;
+  function isDark(){ return html.dataset.theme ? html.dataset.theme==='dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function paintTheme(){ var d=isDark(); themeBtn.querySelector('svg').innerHTML=d?ICON.sun:ICON.moon; themeBtn.setAttribute('aria-label',d?'Switch to light':'Switch to dark'); themeBtn.title=themeBtn.getAttribute('aria-label'); }
+  themeBtn.addEventListener('click',function(){ html.dataset.theme=isDark()?'light':'dark'; paintTheme(); });
+  paintTheme();
+  resetBtn.addEventListener('click',function(){
+    resetCard(); buildList();
+    var ic=resetBtn.querySelector('svg'); if(ic.animate && !reduced()) ic.animate([{transform:'rotate(0)'},{transform:'rotate(-360deg)'}],{duration:500,easing:'cubic-bezier(.3,0,.2,1)'});
+  });
+
+  var copy=document.getElementById('copy'), code=document.getElementById('css');
+  copy.addEventListener('click',function(){
+    var txt=code.innerText;
+    function sel(){ var r=document.createRange(); r.selectNodeContents(code); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); copy.textContent='Selected · press ⌘C'; }
+    try{ navigator.clipboard.writeText(txt).then(function(){ copy.textContent='Copied'; setTimeout(function(){copy.textContent='Copy CSS';},1600); }, sel); } catch(err){ sel(); }
+  });
+
+  buildList();
+})();
+</script>
+</body>
+</html>
