@@ -82,7 +82,7 @@ section{scroll-margin-top:72px}
 .pick{font-size:11px;font-weight:500;color:var(--link);border:1px solid var(--border);border-radius:999px;padding:2px 8px}
 .opt p{font-size:13px;color:var(--text-2)}
 .opt .stage{padding:36px 22px;min-height:230px}
-.qmini{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px;width:100%;max-width:400px}
+.qmini{position:relative;isolation:isolate;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px;width:100%;max-width:400px}
 .qmini .q{font-size:15px}
 .qmini .who .mark{width:26px;height:26px}
 .qmini .acts .btn{padding:7px 12px;font-size:12px}
@@ -168,9 +168,21 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
 .btn.absorbed{background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1));background-size:300% 100%;color:#1b1919;border-color:transparent;box-shadow:none;animation:drift 1.8s linear infinite alternate}
 .btn.absorbed kbd{background:rgba(27,25,25,.12);color:#1b1919}
 .receipt{display:none;position:relative;padding-left:18px;gap:10px}
-.is-taken .card > :not(.receipt){display:none}
+.is-taken .card > :not(.receipt),.is-taken .qmini > :not(.receipt){display:none}
 .is-taken .receipt{display:grid}
-.is-taken .card{cursor:default}
+.is-taken .card,.is-taken .qmini{cursor:default}
+.qmini .receipt{padding-left:14px;gap:8px}.qmini .rc-title{font-size:15px}.qmini .rc-acts .btn{padding:7px 12px;font-size:12px}
+button.lnk{background:none;border:0;padding:0;cursor:pointer;font-family:var(--font)}
+button.xb{cursor:pointer;border:0}
+.cp.light button.xb.gh{border:1px solid rgba(107,98,90,.28);background:transparent}.cp.dark button.xb.gh{border:1px solid rgba(255,255,255,.18);background:transparent}
+.cp.light .xb:focus{outline:2px solid #354cac;outline-offset:2px}.cp.dark .xb:focus{outline:2px solid #addcff;outline-offset:2px}
+.xb:active{transform:scale(.97)}
+.wrow{cursor:pointer}.wrow .r-sub .done-tick{white-space:nowrap}
+.kind .eg button{font:500 12px/1 var(--font);border:1px solid var(--line);border-radius:999px;padding:6px 10px;color:var(--text-2);background:var(--surface);cursor:pointer}
+.kind .eg button:hover{color:var(--text)}
+.spot{animation:spot .9s ease 2}
+@keyframes spot{0%,100%{outline:2px solid transparent;outline-offset:2px}50%{outline:2px solid var(--link);outline-offset:6px}}
+.hint{font:400 12px/1 var(--mono);color:var(--quiet);text-align:center}
 .r-edge{position:absolute;left:0;top:2px;bottom:2px;width:3px;border-radius:3px;overflow:hidden;
   background:linear-gradient(180deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1));background-size:100% 300%;animation:driftV 3s linear infinite alternate}
 .r-edge::after{content:"";position:absolute;inset:0;background:var(--border);opacity:0;transition:opacity .8s ease}
@@ -308,7 +320,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
   <section aria-labelledby="s0">
     <div class="sec-head">
       <h2 id="s0">1 · Where does the breath live?</h2>
-      <p class="muted">Two different messages: “this is waiting on you” is about the whole question, and “your Sutando suggests this answer” is about one action. Four ways to place the breath, all running live on a question with three possible answers.</p>
+      <p class="muted">Two different messages: “this is waiting on you” is about the whole question, and “your Sutando suggests this answer” is about one action. Four ways to place the breath, all running live on a question with three possible answers. Every card works: click it to mark it seen, or answer it.</p>
     </div>
     <div class="opts">
       <div class="opt">
@@ -318,7 +330,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
           <div class="qmini">
             <div class="who"><img class="mark" alt="" data-mark="rui"><div><div class="name">Sutando-rui-codex</div><div class="meta">Rui’s agent · 8h ago</div></div></div>
             <div class="q">Will you take review ownership of client #2174?</div>
-            <div class="acts"><span class="btn">Decline</span><span class="btn">Hand to Rui</span><span class="btn-shell breath"><span class="halo sm" aria-hidden="true"></span><span class="btn primary">Take it</span></span></div>
+            <div class="acts"><button type="button" class="btn" data-act="Declined">Decline</button><button type="button" class="btn" data-act="Handed">Hand to Rui</button><span class="btn-shell breath"><span class="halo sm" aria-hidden="true"></span><button type="button" class="btn primary" data-act="Taken">Take it</button></span></div>
           </div>
         </div>
       </div>
@@ -330,7 +342,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
             <div class="qmini">
               <div class="who"><img class="mark" alt="" data-mark="rui"><div><div class="name">Sutando-rui-codex</div><div class="meta">Rui’s agent · 8h ago</div></div></div>
               <div class="q">Will you take review ownership of client #2174?</div>
-              <div class="acts"><span class="btn">Decline</span><span class="btn">Hand to Rui</span><span class="btn primary">Take it</span></div>
+              <div class="acts"><button type="button" class="btn" data-act="Declined">Decline</button><button type="button" class="btn" data-act="Handed">Hand to Rui</button><button type="button" class="btn primary" data-act="Taken">Take it</button></div>
             </div>
           </div>
         </div>
@@ -343,7 +355,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
             <div class="qmini">
               <div class="who"><img class="mark" alt="" data-mark="rui"><div><div class="name">Sutando-rui-codex</div><div class="meta">Rui’s agent · 8h ago</div></div></div>
               <div class="q">Will you take review ownership of client #2174?</div>
-              <div class="acts"><span class="btn">Decline</span><span class="btn">Hand to Rui</span><span class="btn primary suggested"><img class="mark s" alt="" data-mark="yours">Take it</span></div>
+              <div class="acts"><button type="button" class="btn" data-act="Declined">Decline</button><button type="button" class="btn" data-act="Handed">Hand to Rui</button><button type="button" class="btn primary suggested" data-act="Taken"><img class="mark s" alt="" data-mark="yours">Take it</button></div>
             </div>
           </div>
         </div>
@@ -352,11 +364,10 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
         <div class="opt-head"><h3>D · Breathing dot, in lists</h3><span class="pick">Recommended for lists</span></div>
         <p>Only the top item breathes, as a small gradient dot that softly swells. The rest keep a still warm dot, and the breathing item’s primary action gets the orange ring. Pairs with C when you open an item.</p>
         <div class="stage">
-          <div class="lmini">
-            <div class="row"><div class="edge"><span class="mlight"></span></div><img class="mark m" alt="" data-mark="rui"><div style="min-width:0"><div class="r-title">Review ownership #2174</div><div class="r-sub">Sutando-rui-codex · 8h</div></div><span class="row-act primary ring">Take it</span></div>
-            <div class="row"><div class="edge"><span class="dot"></span></div><img class="mark m" alt="" data-mark="bassil"><div style="min-width:0"><div class="r-title">4 overdue P1s</div><div class="r-sub">sutando-bassil · 54m</div></div></div>
-            <div class="row"><div class="edge"><span class="dot"></span></div><img class="mark m" alt="" data-mark="rui"><div style="min-width:0"><div class="r-title">Review #2203</div><div class="r-sub">Sutando-rui-codex · 8h</div></div></div>
-          </div>
+          <div class="lmini" id="miniList"></div>
+        </div>
+      </div>
+    </div>
         </div>
       </div>
     </div>
@@ -379,7 +390,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
           <div class="why">
             <small>Why you</small>
             <span>Rui is P1 on Delete Room and the client is waiting on an owner before it can merge.</span>
-            <span class="ln"><span class="code">client #2174</span><span class="lnk">Open in thread</span></span>
+            <span class="ln"><span class="code">client #2174</span><button type="button" class="lnk" data-open="1">Open in thread</button></span>
           </div>
           <div class="sug"><img class="mark s" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cpath d='M55.41 43.18c12.54-8.92 19.34-20.86 15.19-26.66-4.14-5.81-17.67-3.29-30.2 5.63-12.54 8.92-19.34 20.85-15.2 26.66 4.15 5.81 17.67 3.29 30.21-5.63z' fill='%231A7843'/%3E%3Cpath d='M50.46 66.17c10.03-7.13 15.47-16.68 12.16-21.33-3.32-4.64-14.14-2.63-24.17 4.51-10.03 7.13-15.47 16.68-12.15 21.33 3.31 4.64 14.13 2.63 24.16-4.51z' fill='%239EE2BD'/%3E%3Cpath d='M64.63 69.5c7.53-5.35 11.61-12.51 9.12-15.99-2.49-3.49-10.6-1.98-18.12 3.37-7.52 5.35-11.6 12.51-9.12 16 2.49 3.48 10.6 1.97 18.12-3.38z' fill='%23FACEFE'/%3E%3Cpath d='M57.09 83.41c5.02-3.57 7.74-8.34 6.08-10.66-1.66-2.33-7.07-1.32-12.08 2.25-5.02 3.57-7.74 8.34-6.08 10.66 1.66 2.33 7.07 1.32 12.08-2.25z' fill='%23ADDCFF'/%3E%3Cpath d='M62.91 86.74c2.51-1.78 3.87-4.17 3.04-5.33-.83-1.16-3.53-.66-6.04 1.12-2.51 1.79-3.87 4.17-3.04 5.33.83 1.17 3.53.66 6.04-1.12z' fill='%23F9A358'/%3E%3C/svg%3E"> Your Sutando suggests Take it</div>
           <div class="acts">
@@ -390,10 +401,9 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
               Take it <kbd>Y</kbd></button>
           </div>
           <div class="seen-note" id="seenNote" aria-live="polite"></div>
-          <span class="pour" id="pour" aria-hidden="true"></span>
           <div class="receipt" id="receipt">
             <span class="r-edge" aria-hidden="true"></span>
-            <div class="rc-top"><img class="mark s" alt="" data-mark="yours"><span id="rcLabel"></span></div>
+            <div class="rc-top"><img class="mark s" alt="" data-mark="yours"><span class="rc-label" id="rcLabel"></span></div>
             <div class="rc-title">Client #2174 · Delete Room</div>
             <div class="rc-status" id="rcStatus" aria-live="polite"></div>
             <div class="rc-acts" id="rcActs"></div>
@@ -436,21 +446,22 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
       <h2 id="s6">4 · Every action is one of four kinds</h2>
       <p class="muted">Take it is one kind of response. The cards in sections 2 and 3 use all four, and each kind treats the breath differently.</p>
     </div>
+    <p class="muted" style="font-size:13px">Click any example to jump to it on the page.</p>
     <p class="rule-line"><strong>The breath goes where your answer goes.</strong> <span class="muted">If nothing has been answered yet, it just stops.</span></p>
     <div class="kinds">
-      <div class="kind"><h3>Decide</h3><div class="eg"><span>Take it</span><span>Decline</span><span>Hand to Rui</span></div>
+      <div class="kind"><h3>Decide</h3><div class="eg"><button type="button" data-spot="Take it" title="Show me">Take it</button><button type="button" data-spot="Decline" title="Show me">Decline</button><button type="button" data-spot="Hand to Rui" title="Show me">Hand to Rui</button></div>
         <dl><div><dt>The breath</dt><dd>Pours into the button you pressed.</dd></div>
         <div><dt>The card</dt><dd>Folds into a note with Undo. The agent acts on your answer under the grey sweep.</dd></div>
         <div><dt>In Activity</dt><dd>Take it → Moving, it’s yours. Decline → gone, the agent asks someone else. Hand to Rui → Waiting on Rui, and you hear back when he answers.</dd></div></dl></div>
-      <div class="kind"><h3>Open</h3><div class="eg"><span>Review</span><span>Open list</span><span>Open in thread</span></div>
+      <div class="kind"><h3>Open</h3><div class="eg"><button type="button" data-spot="Review" title="Show me">Review</button><button type="button" data-spot="Open list" title="Show me">Open list</button><button type="button" data-spot="Open in thread" title="Show me">Open in thread</button></div>
         <dl><div><dt>The breath</dt><dd>Stops, with no pour. Nothing has been answered yet.</dd></div>
         <div><dt>The card</dt><dd>Stays, with a still hollow dot. Opening isn’t finishing.</dd></div>
         <div><dt>In Activity</dt><dd>Stays in Needs you and clears itself when the work is done: the review approved, the P1s moved.</dd></div></dl></div>
-      <div class="kind"><h3>Reply</h3><div class="eg"><span>Reply</span></div>
+      <div class="kind"><h3>Reply</h3><div class="eg"><button type="button" data-spot="Reply" title="Show me">Reply</button></div>
         <dl><div><dt>The breath</dt><dd>Stops while you type, then pours into Send.</dd></div>
         <div><dt>The card</dt><dd>Becomes “You replied”, with your words.</dd></div>
         <div><dt>In Activity</dt><dd>Leaves Needs you.</dd></div></dl></div>
-      <div class="kind"><h3>Snooze</h3><div class="eg"><span>Later</span></div>
+      <div class="kind"><h3>Snooze</h3><div class="eg"><button type="button" data-spot="Later" title="Show me">Later</button></div>
         <dl><div><dt>The breath</dt><dd>Stops, with no pour.</dd></div>
         <div><dt>The card</dt><dd>Folds into a grey note: back tomorrow at 9:00, with Bring back now.</dd></div>
         <div><dt>In Activity</dt><dd>Moves to Later, then returns to the top of Needs you, breathing again.</dd></div></dl></div>
@@ -464,10 +475,11 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
     </div>
     <div class="stage">
       <div class="wlist">
-        <div class="wrow"><span class="hash" aria-hidden="true">#</span><div style="min-width:0"><div class="where">Sidebar room row</div><div class="r-title">Zerlinda’s Sutando and…</div><div class="r-sub"><span class="sweep">2 agents working</span></div></div><span></span></div>
-        <div class="wrow"><img class="mark m" alt="" data-mark="yours"><div style="min-width:0"><div class="where">In the conversation</div><div class="r-title">Matt’s Sutando</div><div class="r-sub"><span class="sweep">Drafting a comparison table in the Commons doc…</span></div></div><span></span></div>
-        <div class="wrow"><img class="mark m" alt="" data-mark="rui"><div style="min-width:0"><div class="where">Activity · Moving</div><div class="r-title">Protected squash after #338</div><div class="r-sub"><span class="sweep">In progress · Sutando-rui-codex</span></div></div><span></span></div>
+        <div class="wrow" role="button" tabindex="0" data-done="✓ Both agents finished · just now"><span class="hash" aria-hidden="true">#</span><div style="min-width:0"><div class="where">Sidebar room row</div><div class="r-title">Zerlinda’s Sutando and…</div><div class="r-sub"><span class="sweep">2 agents working</span></div></div><span></span></div>
+        <div class="wrow" role="button" tabindex="0" data-done="✓ Table added to the Commons doc"><img class="mark m" alt="" data-mark="yours"><div style="min-width:0"><div class="where">In the conversation</div><div class="r-title">Matt’s Sutando</div><div class="r-sub"><span class="sweep">Drafting a comparison table in the Commons doc…</span></div></div><span></span></div>
+        <div class="wrow" role="button" tabindex="0" data-done="✓ Squash protected · moved to Done"><img class="mark m" alt="" data-mark="rui"><div style="min-width:0"><div class="where">Activity · Moving</div><div class="r-title">Protected squash after #338</div><div class="r-sub"><span class="sweep">In progress · Sutando-rui-codex</span></div></div><span></span></div>
       </div>
+      <p class="hint">Click a row to finish the work</p>
     </div>
   </section>
 
@@ -480,8 +492,8 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
       <div class="cmp-col blk">
         <h3>Near-black · proposed</h3>
         <div class="cmp-panels">
-          <div class="cp light"><span class="md">Light</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><span class="xb gh">Decline</span><span class="xb pr">Reply</span><span class="xb pr rg">Take it</span></div></div>
-          <div class="cp dark"><span class="md">Dark</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><span class="xb gh">Decline</span><span class="xb pr">Reply</span><span class="xb pr rg">Take it</span></div></div>
+          <div class="cp light"><span class="md">Light</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><button type="button" class="xb gh">Decline</button><button type="button" class="xb pr">Reply</button><button type="button" class="xb pr rg">Take it</button></div></div>
+          <div class="cp dark"><span class="md">Dark</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><button type="button" class="xb gh">Decline</button><button type="button" class="xb pr">Reply</button><button type="button" class="xb pr rg">Take it</button></div></div>
         </div>
         <ul class="metrics">
           <li><b class="ok">17.5</b>Label on the button, light. Dark (inverted pill) is 15.9:1.</li>
@@ -493,8 +505,8 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
       <div class="cmp-col blu">
         <h3>Weave blue · current token</h3>
         <div class="cmp-panels">
-          <div class="cp light"><span class="md">Light · #465EC9</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><span class="xb gh">Decline</span><span class="xb pr">Reply</span><span class="xb pr rg">Take it</span></div></div>
-          <div class="cp dark"><span class="md">Dark · #ADDCFF</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><span class="xb gh">Decline</span><span class="xb pr">Reply</span><span class="xb pr rg">Take it</span></div></div>
+          <div class="cp light"><span class="md">Light · #465EC9</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><button type="button" class="xb gh">Decline</button><button type="button" class="xb pr">Reply</button><button type="button" class="xb pr rg">Take it</button></div></div>
+          <div class="cp dark"><span class="md">Dark · #ADDCFF</span><span class="tx">Hi <span class="lk">@all</span>, notes are in the doc. <span class="lk">Open in thread</span></span><div class="bts"><button type="button" class="xb gh">Decline</button><button type="button" class="xb pr">Reply</button><button type="button" class="xb pr rg">Take it</button></div></div>
         </div>
         <ul class="metrics">
           <li><b class="ok">5.7</b>Label on the button, light. Passes AA, so blue is not unreadable.</li>
@@ -505,6 +517,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
         </ul>
       </div>
     </div>
+    <p class="hint" style="text-align:left">Click any button to see its focus ring. On blue, the ring is the same colour as the button.</p>
     <div class="verdict">
       <strong>Where blue fails is meaning, not readability.</strong>
       <span class="muted">Text on blue passes. The trouble is collisions: buttons, links, mentions and focus all share one blue, and dark mode makes the button identical to a link. If the team wants blue, give links a different colour and keep a 2px focus gap. Either way, point every primary button at one Button/Primary token, so this stays a single change.</span>
@@ -594,147 +607,220 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
     'Take it':{work:'Sutando-rui-codex is handing over context…',done:'✓ Yours · now in Activity › Moving'},
     'Decline':{work:'Sutando-rui-codex is finding another reviewer…',done:'✓ Declined · Rui’s agent asked Bassil instead'}
   };
+  var MINI=[
+    {who:'Review ownership #2174',agent:true,nolabel:true,mark:'rui',sub:'Sutando-rui-codex · 8h',acts:[['Take it','primary','decide']]},
+    {who:'4 overdue P1s',agent:true,nolabel:true,mark:'bassil',sub:'sutando-bassil · 54m',acts:[['Open list','','open']],opened:'Opened · clears when they move'},
+    {who:'Review #2203',agent:true,nolabel:true,mark:'rui',sub:'Sutando-rui-codex · 8h',acts:[['Review','','open']],opened:'Opened · clears when approved'}
+  ];
   MARKS.yours=document.querySelector('.sug img').getAttribute('src');
   document.querySelectorAll('img[data-mark]').forEach(function(i){ i.src=MARKS[i.dataset.mark]; });
   var list=document.getElementById('list'), count=document.getElementById('count'), lstate=document.getElementById('lstate');
   function el(t,c,h){var e=document.createElement(t); if(c) e.className=c; if(h!=null) e.innerHTML=h; return e;}
-  var listTimers=[];
-  function buildList(){
-    listTimers.forEach(clearTimeout); listTimers=[];
-    list.querySelectorAll('.row').forEach(function(r){r.remove();});
-    ITEMS.forEach(function(it,i){
-      var r=el('div','row'); r.dataset.i=i;
-      var edge=el('div','edge'); r.appendChild(edge);
-      var av; if(it.agent){ av=el('img','mark m'); av.alt=''; av.src=MARKS[it.mark]; } else { av=el('div','initial',it.initial); }
-      r.appendChild(av);
-      var body=el('div',''); body.style.minWidth='0';
-      var t=el('div','r-title'); t.appendChild(document.createTextNode(it.who)); if(it.agent) t.appendChild(el('span','agent-label','AGENT'));
-      body.appendChild(t); var s=el('div','r-sub'); s.textContent=it.sub; body.appendChild(s); r.appendChild(body);
-      var a=el('div','r-acts'); it.acts.forEach(function(x){ var b=el('button','row-act '+x[1]); b.type='button'; b.textContent=x[0]; b.addEventListener('click',function(){ act(r,b,x[0],x[2]); }); a.appendChild(b); });
-      r.appendChild(a); list.appendChild(r);
-    });
-    paint();
-  }
-  function isOpen(r){ return !r.classList.contains('done') && !r.classList.contains('working'); }
-  function paint(){
-    var open=[].slice.call(list.querySelectorAll('.row')).filter(isOpen);
-    var live=open.filter(function(r){ return !r.classList.contains('seen'); });
-    list.querySelectorAll('.edge').forEach(function(e){ e.innerHTML=''; });
-    list.querySelectorAll('.row-act.ring').forEach(function(b){ b.classList.remove('ring'); });
-    open.forEach(function(r){
-      var top=(r===live[0]);
-      r.querySelector('.edge').appendChild(el('span', top?'mlight':(r.classList.contains('seen')?'dot hollow':'dot')));
-      if(top){ var p=r.querySelector('.row-act.primary')||r.querySelector('.row-act'); if(p) p.classList.add('ring'); }
-    });
-    count.textContent=open.length;
-    lstate.textContent= live.length ? ITEMS[+live[0].dataset.i].who : (open.length ? 'Nothing breathing · '+open.length+' opened, not finished' : 'Nothing. All clear');
-  }
-  function sub(r){ return r.querySelector('.r-sub'); }
-  function pulse(b){ if(!reduced()) b.animate([{transform:'scale(1)'},{transform:'scale(1.08)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,0,.2,1)'}); }
-  function act(r,b,label,kind){
-    if(!isOpen(r)) return;
-    if(kind==='open'){
-      r.classList.add('seen'); sub(r).textContent=ITEMS[+r.dataset.i].opened; b.textContent='Open again'; paint(); return;
+  function reduced(){ return root.classList.contains('still') || window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  function pulse(b){ if(!reduced()) b.animate([{transform:'scale(1)'},{transform:'scale(1.07)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,0,.2,1)'}); }
+  function cancelAnims(n){ if(n && n.getAnimations) n.getAnimations().forEach(function(x){ x.cancel(); }); }
+
+  /* ---------- lists (section 1 D and section 3) ---------- */
+  function makeList(listEl, items, countEl, stateEl){
+    var timers=[];
+    function build(){
+      timers.forEach(clearTimeout); timers=[];
+      listEl.querySelectorAll('.row').forEach(function(r){ r.remove(); });
+      items.forEach(function(it,i){
+        var r=el('div','row'); r.dataset.i=i;
+        r.appendChild(el('div','edge'));
+        var av; if(it.agent){ av=el('img','mark m'); av.alt=''; av.src=MARKS[it.mark]; } else { av=el('div','initial',it.initial); }
+        r.appendChild(av);
+        var body=el('div',''); body.style.minWidth='0';
+        var t=el('div','r-title'); t.appendChild(document.createTextNode(it.who)); if(it.agent && !it.nolabel) t.appendChild(el('span','agent-label','AGENT'));
+        body.appendChild(t); var s=el('div','r-sub'); s.textContent=it.sub; body.appendChild(s); r.appendChild(body);
+        var a=el('div','r-acts'); it.acts.forEach(function(x){ var b=el('button','row-act '+x[1]); b.type='button'; b.textContent=x[0]; b.addEventListener('click',function(){ act(r,b,x[0],x[2]); }); a.appendChild(b); });
+        r.appendChild(a); listEl.appendChild(r);
+      });
+      paint();
     }
-    if(kind==='reply'){
-      if(r.querySelector('.composer')) return;
-      r.classList.add('seen'); var c=el('div','composer');
-      var inp=document.createElement('input'); inp.type='text'; inp.value='Thanks, I’ll go through the names tonight.'; inp.setAttribute('aria-label','Reply to qingyun');
-      var send=el('button','row-act primary'); send.type='button'; send.textContent='Send';
-      c.appendChild(inp); c.appendChild(send); r.appendChild(c); b.remove(); paint(); inp.focus();
-      function go(){ var msg=inp.value.trim()||'👍'; r.classList.add('working'); send.classList.add('absorbed'); pulse(send); paint();
-        listTimers.push(setTimeout(function(){ c.remove(); sub(r).textContent='✓ You replied: '+msg; r.querySelector('.r-acts').innerHTML=''; r.classList.remove('working'); r.classList.add('done'); paint(); }, reduced()?100:800)); }
-      send.addEventListener('click',go); inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
-      return;
+    function isOpen(r){ return !r.classList.contains('done') && !r.classList.contains('working'); }
+    function paint(){
+      var open=[].slice.call(listEl.querySelectorAll('.row')).filter(isOpen);
+      var live=open.filter(function(r){ return !r.classList.contains('seen'); });
+      listEl.querySelectorAll('.edge').forEach(function(e){ e.innerHTML=''; });
+      listEl.querySelectorAll('.row-act.ring').forEach(function(b){ b.classList.remove('ring'); });
+      open.forEach(function(r){
+        var top=(r===live[0]);
+        r.querySelector('.edge').appendChild(el('span', top?'mlight':(r.classList.contains('seen')?'dot hollow':'dot')));
+        if(top){ var p=r.querySelector('.row-act.primary')||r.querySelector('.row-act'); if(p) p.classList.add('ring'); }
+      });
+      if(countEl) countEl.textContent=open.length;
+      if(stateEl) stateEl.textContent= live.length ? items[+live[0].dataset.i].who : (open.length ? 'Nothing breathing · '+open.length+' opened, not finished' : 'Nothing. All clear');
     }
-    // decide
-    var o=DECIDE[label]; r.classList.add('working'); b.classList.add('absorbed'); pulse(b); paint();
-    listTimers.push(setTimeout(function(){
-      r.querySelectorAll('.row-act').forEach(function(x){ if(x!==b) x.remove(); });
-      sub(r).innerHTML=''; sub(r).appendChild(el('span','sweep',o.work));
-      listTimers.push(setTimeout(function(){ sub(r).textContent=o.done; r.querySelector('.r-acts').innerHTML=''; r.classList.remove('working'); r.classList.add('done'); paint(); }, 2400));
-    }, reduced()?100:700));
+    function sub(r){ return r.querySelector('.r-sub'); }
+    function act(r,b,label,kind){
+      if(!isOpen(r)) return;
+      if(kind==='open'){ r.classList.add('seen'); sub(r).textContent=items[+r.dataset.i].opened; b.textContent='Open again'; paint(); return; }
+      if(kind==='reply'){
+        if(r.querySelector('.composer')) return;
+        r.classList.add('seen'); var c=el('div','composer');
+        var inp=document.createElement('input'); inp.type='text'; inp.value='Thanks, I’ll go through the names tonight.'; inp.setAttribute('aria-label','Reply to qingyun');
+        var send=el('button','row-act primary'); send.type='button'; send.textContent='Send';
+        c.appendChild(inp); c.appendChild(send); r.appendChild(c); b.remove(); paint(); inp.focus();
+        var sent=false;
+        function go(){ if(sent) return; sent=true; var msg=inp.value.trim()||'👍'; r.classList.add('working'); send.classList.add('absorbed'); pulse(send); paint();
+          timers.push(setTimeout(function(){ c.remove(); sub(r).textContent='✓ You replied: '+msg; r.querySelector('.r-acts').innerHTML=''; r.classList.remove('working'); r.classList.add('done'); paint(); }, reduced()?100:800)); }
+        send.addEventListener('click',go); inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
+        return;
+      }
+      var o=DECIDE[label]; r.classList.add('working'); b.classList.add('absorbed'); pulse(b); paint();
+      timers.push(setTimeout(function(){
+        r.querySelectorAll('.row-act').forEach(function(x){ if(x!==b) x.remove(); });
+        sub(r).innerHTML=''; sub(r).appendChild(el('span','sweep',o.work));
+        timers.push(setTimeout(function(){ sub(r).textContent=o.done; r.querySelector('.r-acts').innerHTML=''; r.classList.remove('working'); r.classList.add('done'); paint(); }, 2400));
+      }, reduced()?100:700));
+    }
+    return {build:build};
+  }
+  var bigList=makeList(list, ITEMS, count, lstate);
+  var miniList=makeList(document.getElementById('miniList'), MINI, null, null);
+
+  /* ---------- question cards (section 1 A–C and section 2) ---------- */
+  var OUT={
+    'Taken':{label:'You took review ownership · just now',work:'Sutando-rui-codex is handing over context…',done:'Handed over: why it’s you, 2 open threads and the merge checklist',acts:[['Open client #2174','primary','open'],['Undo','','undo']],dest:'Now in Activity › Moving',state:'Yours · Activity › Moving'},
+    'Declined':{label:'You declined · just now',work:'Sutando-rui-codex is finding another reviewer…',done:'Rui’s agent asked Bassil instead. It only comes back to you if he passes.',acts:[['Undo','','undo']],dest:'Gone from Needs you',state:'Declined · re-routed by Rui’s agent'},
+    'Handed':{label:'You handed it to Rui · just now',work:'Sutando-rui-codex is passing it to Rui…',done:'Rui has it now. You’ll hear back when he answers.',acts:[['Undo','','undo']],dest:'Activity › Waiting on Rui',state:'Waiting on Rui'},
+    'Saved for later':{snooze:true,label:'Snoozed · back tomorrow at 9:00',done:'It comes back to the top of Needs you, breathing again.',acts:[['Bring back now','','undo']],dest:'Activity › Later',state:'Snoozed · no pour'}
+  };
+  function freeze(h){
+    var cs=getComputedStyle(h); h.style.animation='none'; h.style.opacity=cs.opacity; h.style.inset=cs.top;
+    void h.offsetWidth; h.style.transition='opacity .45s ease, inset .45s ease'; h.style.opacity='0'; h.style.inset='0px';
+  }
+  function Question(cfg){
+    var shell=cfg.shell, card=cfg.card, timers=[], rc=card.querySelector('.receipt');
+    var pour=card.querySelector('.pour'); if(!pour){ pour=el('span','pour'); pour.setAttribute('aria-hidden','true'); card.appendChild(pour); }
+    function later(fn,ms){ timers.push(setTimeout(fn,ms)); }
+    function st(t){ if(cfg.onState) cfg.onState(t); }
+    function busy(){ return shell.classList.contains('is-taking') || shell.classList.contains('is-taken'); }
+    function seen(msg){
+      if(busy()) return;
+      if(!shell.classList.contains('is-seen')){ cfg.halos.forEach(freeze); shell.classList.add('is-seen'); }
+      st('Seen'); if(cfg.note) cfg.note.textContent=msg||'Seen · the ring stays on the suggested answer';
+    }
+    function receipt(){
+      if(rc) return rc;
+      rc=el('div','receipt');
+      rc.innerHTML='<span class="r-edge" aria-hidden="true"></span><div class="rc-top"><img class="mark s" alt=""><span class="rc-label"></span></div><div class="rc-title">Client #2174 · Delete Room</div><div class="rc-status" aria-live="polite"></div><div class="rc-acts"></div>';
+      rc.querySelector('img').src=MARKS.yours; card.appendChild(rc); return rc;
+    }
+    function answer(key,btn){
+      if(busy()) return; var o=OUT[key]; if(!o) return;
+      var wasSeen=shell.classList.contains('is-seen');
+      shell.classList.add('is-seen','is-taking'); if(cfg.note) cfg.note.textContent=''; st(o.snooze?'Snoozing':'Answering');
+      if(!wasSeen) cfg.halos.forEach(freeze);
+      if(o.snooze || !btn || reduced()){ if(btn && !o.snooze) btn.classList.add('absorbed'); later(function(){ fold(o); }, o.snooze?350:300); return; }
+      var c=card.getBoundingClientRect(), b=btn.getBoundingClientRect();
+      var x=b.left-c.left-card.clientLeft, y=b.top-c.top-card.clientTop;
+      pour.style.display='block';
+      var anim=pour.animate([
+        {left:'0px',top:'0px',width:card.clientWidth+'px',height:card.clientHeight+'px',borderRadius:cfg.radius+'px',opacity:0,filter:'blur(28px)'},
+        {opacity:.4,offset:.35},
+        {left:x+'px',top:y+'px',width:b.width+'px',height:b.height+'px',borderRadius:'999px',opacity:1,filter:'blur(6px)'}
+      ],{duration:700,easing:'cubic-bezier(.55,0,.2,1)',fill:'forwards'});
+      anim.onfinish=function(){
+        if(!shell.classList.contains('is-taking')) return;
+        btn.classList.add('absorbed'); pulse(btn);
+        pour.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'});
+        later(function(){ fold(o); },700);
+      };
+    }
+    function fold(o){
+      var r=receipt(), h0=card.getBoundingClientRect().height;
+      shell.classList.remove('is-taking'); shell.classList.add('is-taken');
+      r.classList.remove('settled'); r.classList.toggle('snooze',!!o.snooze);
+      r.querySelector('.rc-label').textContent=o.label;
+      var acts=r.querySelector('.rc-acts'); acts.innerHTML='';
+      o.acts.forEach(function(x){ var bt=el('button','btn '+x[1]); bt.type='button'; bt.textContent=x[0]; bt.dataset.rc=x[2]; acts.appendChild(bt); });
+      acts.appendChild(el('span','rc-dest',o.dest));
+      var stt=r.querySelector('.rc-status');
+      if(o.work){ stt.innerHTML=''; stt.appendChild(el('span','sweep',o.work)); st('Agent working');
+        later(function(){ stt.textContent=o.done; r.classList.add('settled'); st(o.state); },3400);
+      } else { stt.textContent=o.done; r.classList.add('settled'); st(o.state); }
+      var h1=card.getBoundingClientRect().height;
+      if(!reduced()){
+        card.style.overflow='hidden';
+        card.animate([{height:h0+'px'},{height:h1+'px'}],{duration:480,easing:'cubic-bezier(.2,.7,.2,1)'}).onfinish=function(){ card.style.overflow=''; };
+        r.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:360,delay:160,easing:'ease-out',fill:'backwards'});
+      }
+    }
+    function reset(){
+      timers.forEach(clearTimeout); timers=[];
+      [].slice.call(card.querySelectorAll('.btn')).forEach(function(x){ cancelAnims(x); x.classList.remove('absorbed'); });
+      cancelAnims(pour); cancelAnims(card); cancelAnims(rc);
+      pour.style.display=''; card.style.overflow='';
+      shell.classList.remove('is-seen','is-taking','is-taken');
+      if(rc) rc.classList.remove('settled','snooze');
+      cfg.halos.forEach(function(h){ h.removeAttribute('style'); });
+      st('Breathing'); if(cfg.note) cfg.note.textContent='';
+    }
+    card.addEventListener('click',function(e){
+      var rb=e.target.closest('[data-rc]');
+      if(rb){ if(rb.dataset.rc==='undo') reset(); else rb.textContent='Opened ✓'; return; }
+      if(e.target.closest('.receipt')) return;
+      if(e.target.closest('[data-open]')){ seen('Opened in thread · still needs you until you answer'); return; }
+      var b=e.target.closest('[data-act]'); if(b){ answer(b.dataset.act,b); return; }
+      seen();
+    });
+    return {answer:answer, reset:reset, seen:seen};
   }
 
-  var shell=document.getElementById('qshell'), card=document.getElementById('qcard'), halo=shell.querySelector('.halo'), qstate=document.getElementById('qstate'), note=document.getElementById('seenNote');
-  var pour=document.getElementById('pour'), receipt=document.getElementById('receipt'), rcStatus=document.getElementById('rcStatus'), rcLabel=document.getElementById('rcLabel'), rcActs=document.getElementById('rcActs');
-  var OUT={
-    'Taken':{btn:'takeBtn',label:'You took review ownership · just now',work:'Sutando-rui-codex is handing over context…',done:'Handed over: why it’s you, 2 open threads and the merge checklist',acts:[['Open client #2174','primary'],['Undo','','undo']],dest:'Now in Activity › Moving',state:'Yours · Activity › Moving'},
-    'Declined':{btn:'declineBtn',label:'You declined · just now',work:'Sutando-rui-codex is finding another reviewer…',done:'Rui’s agent asked Bassil instead. It only comes back to you if he passes.',acts:[['Undo','','undo']],dest:'Gone from Needs you',state:'Declined · re-routed by Rui’s agent'},
-    'Saved for later':{btn:null,snooze:true,label:'Snoozed · back tomorrow at 9:00',done:'It comes back to the top of Needs you, breathing again.',acts:[['Bring back now','','undo']],dest:'Activity › Later',state:'Snoozed · no pour'}
-  };
-  var timers=[];
-  function later(fn,ms){ timers.push(setTimeout(fn,ms)); }
-  function reduced(){ return root.classList.contains('still') || window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-  function busy(){ return shell.classList.contains('is-taking') || shell.classList.contains('is-taken'); }
-  function freezeHalo(){
-    var cs=getComputedStyle(halo); halo.style.animation='none'; halo.style.opacity=cs.opacity; halo.style.inset=cs.top;
-    void halo.offsetWidth; halo.style.transition='opacity .45s ease, inset .45s ease'; halo.style.opacity='0'; halo.style.inset='0px';
-  }
-  function settle(label){
-    if(busy()) return;
-    if(OUT[label]){ answer(OUT[label]); return; }
-    if(!shell.classList.contains('is-seen')){ freezeHalo(); shell.classList.add('is-seen'); }
-    qstate.textContent='Seen'; note.textContent='Seen · the ring stays on the suggested answer';
-  }
-  function answer(o){
-    var btn=o.btn?document.getElementById(o.btn):null;
-    var wasSeen=shell.classList.contains('is-seen');
-    shell.classList.add('is-seen','is-taking'); note.textContent=''; qstate.textContent= btn?'Answering':'Snoozing';
-    if(!wasSeen) freezeHalo();
-    if(!btn || reduced()){ if(btn) btn.classList.add('absorbed'); later(function(){ fold(o); }, btn?300:350); return; }
-    var c=card.getBoundingClientRect(), b=btn.getBoundingClientRect();
-    var x=b.left-c.left-card.clientLeft, y=b.top-c.top-card.clientTop;
-    pour.style.display='block';
-    var anim=pour.animate([
-      {left:'0px',top:'0px',width:card.clientWidth+'px',height:card.clientHeight+'px',borderRadius:'16px',opacity:0,filter:'blur(28px)'},
-      {opacity:.4,offset:.35},
-      {left:x+'px',top:y+'px',width:b.width+'px',height:b.height+'px',borderRadius:'999px',opacity:1,filter:'blur(6px)'}
-    ],{duration:700,easing:'cubic-bezier(.55,0,.2,1)',fill:'forwards'});
-    anim.onfinish=function(){
-      if(!shell.classList.contains('is-taking')) return;
-      btn.classList.add('absorbed'); pulse(btn);
-      pour.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'});
-      later(function(){ fold(o); },700);
-    };
-  }
-  function fold(o){
-    var h0=card.getBoundingClientRect().height;
-    shell.classList.remove('is-taking'); shell.classList.add('is-taken');
-    receipt.classList.remove('settled'); receipt.classList.toggle('snooze',!!o.snooze);
-    rcLabel.textContent=o.label; rcActs.innerHTML='';
-    o.acts.forEach(function(x){ var bt=el('button','btn '+x[1],null); bt.type='button'; bt.textContent=x[0]; if(x[2]==='undo') bt.dataset.undo='1'; rcActs.appendChild(bt); });
-    rcActs.appendChild(el('span','rc-dest',o.dest));
-    if(o.work){
-      rcStatus.innerHTML=''; rcStatus.appendChild(el('span','sweep',o.work)); qstate.textContent='Agent working';
-      later(function(){ rcStatus.textContent=o.done; receipt.classList.add('settled'); qstate.textContent=o.state; }, 3400);
-    } else { rcStatus.textContent=o.done; receipt.classList.add('settled'); qstate.textContent=o.state; }
-    var h1=card.getBoundingClientRect().height;
-    if(!reduced()){
-      card.style.overflow='hidden';
-      card.animate([{height:h0+'px'},{height:h1+'px'}],{duration:480,easing:'cubic-bezier(.2,.7,.2,1)'}).onfinish=function(){ card.style.overflow=''; };
-      receipt.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:360,delay:160,easing:'ease-out',fill:'backwards'});
-    }
-  }
-  function resetCard(){
-    timers.forEach(clearTimeout); timers=[];
-    var btns=[].slice.call(card.querySelectorAll('.acts .btn'));
-    btns.concat([pour,card,receipt]).forEach(function(n){ n.getAnimations().forEach(function(x){ x.cancel(); }); });
-    pour.style.display=''; card.style.overflow='';
-    shell.classList.remove('is-seen','is-taking','is-taken'); btns.forEach(function(x){ x.classList.remove('absorbed'); }); receipt.classList.remove('settled','snooze');
-    halo.removeAttribute('style'); qstate.textContent='Breathing'; note.textContent=''; rcStatus.textContent='';
-  }
-  card.addEventListener('click',function(e){
-    if(e.target.closest('[data-undo]')){ resetCard(); return; }
-    if(e.target.closest('.receipt')) return;
-    var b=e.target.closest('[data-act]'); settle(b?b.dataset.act:null);
+  var shell=document.getElementById('qshell'), card=document.getElementById('qcard'), qstate=document.getElementById('qstate'), note=document.getElementById('seenNote');
+  var q2=Question({shell:shell, card:card, halos:[shell.querySelector('.halo')], radius:16, note:note, onState:function(t){ qstate.textContent=t; }});
+  var minis=[].slice.call(document.querySelectorAll('.opts .qmini')).map(function(q){
+    var wrap=q.closest('.card-wrap'), stage=q.closest('.stage');
+    var halos=[].slice.call(stage.querySelectorAll('.halo'));
+    return Question({shell: wrap||stage, card:q, halos:halos, radius:14});
   });
-  card.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ if(e.target===card){ e.preventDefault(); settle(null);} } });
+  function resetAll(){ q2.reset(); minis.forEach(function(m){ m.reset(); }); bigList.build(); miniList.build(); resetSweeps(); }
+
+  card.addEventListener('keydown',function(e){ if((e.key==='Enter'||e.key===' ') && e.target===card){ e.preventDefault(); q2.seen(); } });
   document.addEventListener('keydown',function(e){
     if(e.target.closest && e.target.closest('input,textarea')) return;
-    var k=e.key.toLowerCase(); var map={y:'Taken',n:'Declined',l:'Saved for later'};
-    if(map[k] && !e.metaKey && !e.ctrlKey && !e.altKey){ settle(map[k]); }
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key.toLowerCase();
+    if(k==='y') q2.answer('Taken',document.getElementById('takeBtn'));
+    else if(k==='n') q2.answer('Declined',document.getElementById('declineBtn'));
+    else if(k==='l') q2.answer('Saved for later',null);
   });
+
+  /* ---------- section 4: jump to an example ---------- */
+  function findTarget(lab){
+    var sel={'Take it':'#takeBtn','Decline':'#declineBtn','Later':'#qcard [data-act="Saved for later"]','Open in thread':'#qcard [data-open]','Hand to Rui':'.opts [data-act="Handed"]'}[lab];
+    if(sel) return document.querySelector(sel);
+    var hit=[].slice.call(document.querySelectorAll('#list .row-act')).filter(function(b){ return b.textContent===lab; })[0];
+    return hit || document.getElementById('list');
+  }
+  document.querySelectorAll('[data-spot]').forEach(function(c){
+    c.addEventListener('click',function(){
+      var t=findTarget(c.dataset.spot); if(!t || t.offsetParent===null) t=document.getElementById('s0');
+      t.scrollIntoView({behavior:reduced()?'auto':'smooth',block:'center'});
+      t.classList.remove('spot'); void t.offsetWidth; t.classList.add('spot');
+      setTimeout(function(){ t.classList.remove('spot'); },2000);
+    });
+  });
+
+  /* ---------- section 5: finish the work ---------- */
+  var wrows=[].slice.call(document.querySelectorAll('.wrow[data-done]'));
+  wrows.forEach(function(r){ var s=r.querySelector('.sweep'); r.dataset.work=s.textContent; });
+  function toggleRow(r){
+    var sub=r.querySelector('.r-sub');
+    if(r.classList.contains('finished')){ sub.innerHTML=''; sub.appendChild(el('span','sweep',r.dataset.work)); r.classList.remove('finished'); }
+    else { sub.innerHTML=''; sub.appendChild(el('span','done-tick',r.dataset.done)); r.classList.add('finished'); }
+  }
+  function resetSweeps(){ wrows.forEach(function(r){ if(r.classList.contains('finished')) toggleRow(r); }); }
+  wrows.forEach(function(r){
+    r.addEventListener('click',function(){ toggleRow(r); });
+    r.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleRow(r); } });
+  });
+
+  /* ---------- section 6: show focus on click ---------- */
+  document.querySelectorAll('button.xb').forEach(function(b){ b.addEventListener('click',function(){ b.focus(); }); });
 
   var ICON={
     pause:'<path d="M8 5v14M16 5v14"/>',
@@ -752,7 +838,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
   themeBtn.addEventListener('click',function(){ html.dataset.theme=isDark()?'light':'dark'; paintTheme(); });
   paintTheme();
   resetBtn.addEventListener('click',function(){
-    resetCard(); buildList();
+    resetAll();
     var ic=resetBtn.querySelector('svg'); if(ic.animate && !reduced()) ic.animate([{transform:'rotate(0)'},{transform:'rotate(-360deg)'}],{duration:500,easing:'cubic-bezier(.3,0,.2,1)'});
   });
 
@@ -763,7 +849,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
     try{ navigator.clipboard.writeText(txt).then(function(){ copy.textContent='Copied'; setTimeout(function(){copy.textContent='Copy CSS';},1600); }, sel); } catch(err){ sel(); }
   });
 
-  buildList();
+  bigList.build(); miniList.build();
 })();
 </script>
 </body>
