@@ -166,6 +166,14 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
 .pour{position:absolute;z-index:-1;display:none;pointer-events:none;
   background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1));background-size:300% 100%;animation:drift 2s linear infinite alternate}
 .btn.absorbed{background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1));background-size:300% 100%;color:#1b1919;border-color:transparent;box-shadow:none;animation:drift 1.8s linear infinite alternate}
+.btn.absorbed,.row .row-act.absorbed{box-shadow:inset 0 0 0 0 transparent;transition:box-shadow .55s ease}
+.btn.absorbed.tone-pink,.row .row-act.absorbed.tone-pink{box-shadow:inset 0 0 0 40px var(--g2)}
+.btn.absorbed.tone-yellow,.row .row-act.absorbed.tone-yellow{box-shadow:inset 0 0 0 40px var(--g4)}
+.pour i{position:absolute;inset:0;border-radius:inherit;opacity:0}
+.receipt.tone-pink .r-edge{background:var(--g2);animation:none}
+.receipt.tone-yellow .r-edge{background:var(--g4);animation:none}
+.tones{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tone-chip{font:500 12px/1 var(--font);border-radius:999px;padding:8px 12px;color:#1b1919}
 .btn.absorbed kbd{background:rgba(27,25,25,.12);color:#1b1919}
 .receipt{display:none;position:relative;padding-left:18px;gap:10px}
 .is-taken .card > :not(.receipt),.is-taken .qmini > :not(.receipt){display:none}
@@ -368,9 +376,6 @@ button.xb{cursor:pointer;border:0}
         </div>
       </div>
     </div>
-        </div>
-      </div>
-    </div>
   </section>
 
   <section aria-labelledby="s1">
@@ -448,9 +453,10 @@ button.xb{cursor:pointer;border:0}
     </div>
     <p class="muted" style="font-size:13px">Click any example to jump to it on the page.</p>
     <p class="rule-line"><strong>The breath goes where your answer goes.</strong> <span class="muted">If nothing has been answered yet, it just stops.</span></p>
+    <div class="tones" aria-label="Colour by answer"><span class="tone-chip" style="background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4))">Take it · full gradient</span><span class="tone-chip" style="background:var(--g2)">Decline · pink</span><span class="tone-chip" style="background:var(--g4)">Hand to Rui · yellow</span><span class="muted" style="font-size:13px">Snooze and Open don’t pour, so they don’t get a colour.</span></div>
     <div class="kinds">
       <div class="kind"><h3>Decide</h3><div class="eg"><button type="button" data-spot="Take it" title="Show me">Take it</button><button type="button" data-spot="Decline" title="Show me">Decline</button><button type="button" data-spot="Hand to Rui" title="Show me">Hand to Rui</button></div>
-        <dl><div><dt>The breath</dt><dd>Pours into the button you pressed.</dd></div>
+        <dl><div><dt>The breath</dt><dd>Pours into the button you pressed. Take it keeps the full gradient. Decline settles to pink, Hand to Rui to yellow, so you can tell at a glance which answer you gave.</dd></div>
         <div><dt>The card</dt><dd>Folds into a note with Undo. The agent acts on your answer under the grey sweep.</dd></div>
         <div><dt>In Activity</dt><dd>Take it → Moving, it’s yours. Decline → gone, the agent asks someone else. Hand to Rui → Waiting on Rui, and you hear back when he answers.</dd></div></dl></div>
       <div class="kind"><h3>Open</h3><div class="eg"><button type="button" data-spot="Review" title="Show me">Review</button><button type="button" data-spot="Open list" title="Show me">Open list</button><button type="button" data-spot="Open in thread" title="Show me">Open in thread</button></div>
@@ -542,8 +548,9 @@ button.xb{cursor:pointer;border:0}
           <li><span>06</span>Reduced motion: show the Rest state only, with no drift.</li>
           <li><span>07</span>Your own actions, like Reply, never breathe.</li>
           <li><span>08</span>When you decide or send, the breath pours into the button you pressed and the card folds into a note. The note’s gradient edge turns grey once the hand-off is done, so orange still only means waiting on you.</li>
-          <li><span>09</span>Opening something is not answering it. Open stops the breath but keeps the item in Needs you, with a hollow dot, until the work is done. Snooze stops the breath with no pour.</li>
-          <li><span>10</span>A grey sweep means an agent is working. Only on live status text, never on headings or on anything waiting on you.</li>
+          <li><span>09</span>The pour settles to a colour by answer: full gradient for the suggested yes (Take it), pink for Decline, yellow for Hand to Rui. The note’s edge matches while the agent works, then turns grey.</li>
+          <li><span>10</span>Opening something is not answering it. Open stops the breath but keeps the item in Needs you, with a hollow dot, until the work is done. Snooze stops the breath with no pour.</li>
+          <li><span>11</span>A grey sweep means an agent is working. Only on live status text, never on headings or on anything waiting on you.</li>
         </ul>
       </div>
       <div style="display:grid;gap:14px;align-content:start">
@@ -559,6 +566,7 @@ button.xb{cursor:pointer;border:0}
           <tr><td>Gradient stops</td><td><span class="swatches"><span class="sw"><i style="background:#f9a358"></i>#F9A358</span><span class="sw"><i style="background:#facefe"></i>#FACEFE</span><span class="sw"><i style="background:#f6c5b1"></i>#F6C5B1</span><span class="sw"><i style="background:#f0e345"></i>#F0E345</span></span></td></tr>
           <tr><td>Suggestion ring</td><td>2px #F9A358, 2px gap</td></tr>
           <tr><td>Take it hand-off</td><td>pour 0.7s → button fill + 1.06 pulse 0.4s → fold 0.48s → agent sweep → edge to grey 0.8s</td></tr>
+          <tr><td>Answer colour</td><td>Take it: full gradient · Decline: #FACEFE · Hand to Rui: #F0E345 · fade 0.55s after the pour lands</td></tr>
           <tr><td>Working sweep</td><td>2.4s linear · text only · grey highlight, no orange</td></tr>
         </table>
       </div>
@@ -605,7 +613,7 @@ button.xb{cursor:pointer;border:0}
   ];
   var DECIDE={
     'Take it':{work:'Sutando-rui-codex is handing over context…',done:'✓ Yours · now in Activity › Moving'},
-    'Decline':{work:'Sutando-rui-codex is finding another reviewer…',done:'✓ Declined · Rui’s agent asked Bassil instead'}
+    'Decline':{tone:'pink',work:'Sutando-rui-codex is finding another reviewer…',done:'✓ Declined · Rui’s agent asked Bassil instead'}
   };
   var MINI=[
     {who:'Review ownership #2174',agent:true,nolabel:true,mark:'rui',sub:'Sutando-rui-codex · 8h',acts:[['Take it','primary','decide']]},
@@ -670,6 +678,7 @@ button.xb{cursor:pointer;border:0}
         return;
       }
       var o=DECIDE[label]; r.classList.add('working'); b.classList.add('absorbed'); pulse(b); paint();
+      if(o.tone) setTimeout(function(){ b.classList.add('tone-'+o.tone); }, reduced()?0:220);
       timers.push(setTimeout(function(){
         r.querySelectorAll('.row-act').forEach(function(x){ if(x!==b) x.remove(); });
         sub(r).innerHTML=''; sub(r).appendChild(el('span','sweep',o.work));
@@ -684,8 +693,8 @@ button.xb{cursor:pointer;border:0}
   /* ---------- question cards (section 1 A–C and section 2) ---------- */
   var OUT={
     'Taken':{label:'You took review ownership · just now',work:'Sutando-rui-codex is handing over context…',done:'Handed over: why it’s you, 2 open threads and the merge checklist',acts:[['Open client #2174','primary','open'],['Undo','','undo']],dest:'Now in Activity › Moving',state:'Yours · Activity › Moving'},
-    'Declined':{label:'You declined · just now',work:'Sutando-rui-codex is finding another reviewer…',done:'Rui’s agent asked Bassil instead. It only comes back to you if he passes.',acts:[['Undo','','undo']],dest:'Gone from Needs you',state:'Declined · re-routed by Rui’s agent'},
-    'Handed':{label:'You handed it to Rui · just now',work:'Sutando-rui-codex is passing it to Rui…',done:'Rui has it now. You’ll hear back when he answers.',acts:[['Undo','','undo']],dest:'Activity › Waiting on Rui',state:'Waiting on Rui'},
+    'Declined':{tone:'pink',label:'You declined · just now',work:'Sutando-rui-codex is finding another reviewer…',done:'Rui’s agent asked Bassil instead. It only comes back to you if he passes.',acts:[['Undo','','undo']],dest:'Gone from Needs you',state:'Declined · re-routed by Rui’s agent'},
+    'Handed':{tone:'yellow',label:'You handed it to Rui · just now',work:'Sutando-rui-codex is passing it to Rui…',done:'Rui has it now. You’ll hear back when he answers.',acts:[['Undo','','undo']],dest:'Activity › Waiting on Rui',state:'Waiting on Rui'},
     'Saved for later':{snooze:true,label:'Snoozed · back tomorrow at 9:00',done:'It comes back to the top of Needs you, breathing again.',acts:[['Bring back now','','undo']],dest:'Activity › Later',state:'Snoozed · no pour'}
   };
   function freeze(h){
@@ -714,10 +723,13 @@ button.xb{cursor:pointer;border:0}
       var wasSeen=shell.classList.contains('is-seen');
       shell.classList.add('is-seen','is-taking'); if(cfg.note) cfg.note.textContent=''; st(o.snooze?'Snoozing':'Answering');
       if(!wasSeen) cfg.halos.forEach(freeze);
-      if(o.snooze || !btn || reduced()){ if(btn && !o.snooze) btn.classList.add('absorbed'); later(function(){ fold(o); }, o.snooze?350:300); return; }
+      if(o.snooze || !btn || reduced()){ if(btn && !o.snooze){ btn.classList.add('absorbed'); if(o.tone) btn.classList.add('tone-'+o.tone); } later(function(){ fold(o); }, o.snooze?350:300); return; }
       var c=card.getBoundingClientRect(), b=btn.getBoundingClientRect();
       var x=b.left-c.left-card.clientLeft, y=b.top-c.top-card.clientTop;
       pour.style.display='block';
+      var tint=pour.querySelector('i'); if(!tint){ tint=document.createElement('i'); pour.appendChild(tint); }
+      tint.style.background= o.tone ? 'var(--'+(o.tone==='pink'?'g2':'g4')+')' : 'transparent';
+      tint.animate([{opacity:0},{opacity:0,offset:.45},{opacity:1}],{duration:700,easing:'ease-in',fill:'forwards'});
       var anim=pour.animate([
         {left:'0px',top:'0px',width:card.clientWidth+'px',height:card.clientHeight+'px',borderRadius:cfg.radius+'px',opacity:0,filter:'blur(28px)'},
         {opacity:.4,offset:.35},
@@ -725,7 +737,7 @@ button.xb{cursor:pointer;border:0}
       ],{duration:700,easing:'cubic-bezier(.55,0,.2,1)',fill:'forwards'});
       anim.onfinish=function(){
         if(!shell.classList.contains('is-taking')) return;
-        btn.classList.add('absorbed'); pulse(btn);
+        btn.classList.add('absorbed'); if(o.tone) btn.classList.add('tone-'+o.tone); pulse(btn);
         pour.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'});
         later(function(){ fold(o); },700);
       };
@@ -733,7 +745,7 @@ button.xb{cursor:pointer;border:0}
     function fold(o){
       var r=receipt(), h0=card.getBoundingClientRect().height;
       shell.classList.remove('is-taking'); shell.classList.add('is-taken');
-      r.classList.remove('settled'); r.classList.toggle('snooze',!!o.snooze);
+      r.classList.remove('settled','tone-pink','tone-yellow'); r.classList.toggle('snooze',!!o.snooze); if(o.tone) r.classList.add('tone-'+o.tone);
       r.querySelector('.rc-label').textContent=o.label;
       var acts=r.querySelector('.rc-acts'); acts.innerHTML='';
       o.acts.forEach(function(x){ var bt=el('button','btn '+x[1]); bt.type='button'; bt.textContent=x[0]; bt.dataset.rc=x[2]; acts.appendChild(bt); });
@@ -751,11 +763,12 @@ button.xb{cursor:pointer;border:0}
     }
     function reset(){
       timers.forEach(clearTimeout); timers=[];
-      [].slice.call(card.querySelectorAll('.btn')).forEach(function(x){ cancelAnims(x); x.classList.remove('absorbed'); });
+      [].slice.call(card.querySelectorAll('.btn')).forEach(function(x){ cancelAnims(x); x.classList.remove('absorbed','tone-pink','tone-yellow'); });
+      var ti=pour.querySelector('i'); if(ti) cancelAnims(ti);
       cancelAnims(pour); cancelAnims(card); cancelAnims(rc);
       pour.style.display=''; card.style.overflow='';
       shell.classList.remove('is-seen','is-taking','is-taken');
-      if(rc) rc.classList.remove('settled','snooze');
+      if(rc) rc.classList.remove('settled','snooze','tone-pink','tone-yellow');
       cfg.halos.forEach(function(h){ h.removeAttribute('style'); });
       st('Breathing'); if(cfg.note) cfg.note.textContent='';
     }
