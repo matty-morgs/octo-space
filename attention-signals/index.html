@@ -174,7 +174,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
 .r-edge{position:absolute;left:0;top:2px;bottom:2px;width:3px;border-radius:3px;overflow:hidden;
   background:linear-gradient(180deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1));background-size:100% 300%;animation:driftV 3s linear infinite alternate}
 .r-edge::after{content:"";position:absolute;inset:0;background:var(--border);opacity:0;transition:opacity .8s ease}
-.receipt.settled .r-edge::after{opacity:1}
+.receipt.settled .r-edge::after,.receipt.snooze .r-edge::after{opacity:1}
 @keyframes driftV{from{background-position:50% 0}to{background-position:50% 100%}}
 .rc-top{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--text-2);flex-wrap:wrap}
 .rc-title{font-size:17px;line-height:1.3;font-weight:600}
@@ -216,6 +216,21 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
 .lhead{display:flex;justify-content:space-between;gap:12px;padding:12px 0 8px 18px;font-size:12px;color:var(--text-2);flex-wrap:wrap}
 .row{display:grid;grid-template-columns:18px 32px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 0;border-top:1px solid var(--border);transition:opacity .4s ease}
 .row.done{opacity:.45}
+.dot.hollow{background:transparent;box-shadow:inset 0 0 0 1.5px var(--dot)}
+.row .row-act.absorbed{background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3),var(--g4),var(--g1));background-size:300% 100%;color:#1b1919;border-color:transparent;box-shadow:none;animation:drift 1.8s linear infinite alternate}
+.paused .row .row-act.absorbed{animation-play-state:paused}.still .row .row-act.absorbed{animation:none}
+.composer{grid-column:3 / -1;display:flex;gap:8px;align-items:center;padding-top:2px}
+.composer input{flex:1;min-width:0;font:400 13px/1.2 var(--font);color:var(--text);background:var(--sunk);border:1px solid var(--line);border-radius:999px;padding:9px 14px}
+.composer input:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+.kinds{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px}
+.kind{background:var(--canvas);border-radius:14px;padding:20px;display:grid;gap:12px;align-content:start}
+.kind .eg{display:flex;flex-wrap:wrap;gap:6px}
+.kind .eg span{font:500 12px/1 var(--font);border:1px solid var(--line);border-radius:999px;padding:6px 10px;color:var(--text-2);background:var(--surface)}
+.kind dl{margin:0;display:grid;gap:10px;font-size:13px}
+.kind dt{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--quiet)}
+.kind dd{margin:2px 0 0;color:var(--text)}
+.rule-line{background:var(--canvas);border-radius:12px;padding:16px 18px;font-size:15px;max-width:80ch}
+
 .edge{position:relative;height:44px}
 .dot{position:absolute;left:6px;top:19px;width:6px;height:6px;border-radius:50%;background:var(--dot)}
 .mlight{position:absolute;left:5px;top:18px;width:8px;height:8px;border-radius:50%;isolation:isolate;
@@ -350,7 +365,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
   <section aria-labelledby="s1">
     <div class="sec-head">
       <h2 id="s1">2 · In review mode: the question breathes</h2>
-      <p class="muted">The card around the question breathes while it waits. Click the card and it settles into Seen: the breath fades out and the suggestion ring stays. Press Take it (or Y) to see the hand-off: the breath pours into your answer, then the card folds into a note.</p>
+      <p class="muted">The card around the question breathes while it waits. Click the card and it settles into Seen: the breath fades out and the suggestion ring stays. Then try each answer. Take it (Y) and Decline (N) are decisions, so the breath pours into the button you press and the card folds into a note. Later (L) is a snooze, so the breath just stops.</p>
     </div>
     <div class="stage">
       <div class="card-shell breath" id="qshell">
@@ -368,7 +383,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
           </div>
           <div class="sug"><img class="mark s" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cpath d='M55.41 43.18c12.54-8.92 19.34-20.86 15.19-26.66-4.14-5.81-17.67-3.29-30.2 5.63-12.54 8.92-19.34 20.85-15.2 26.66 4.15 5.81 17.67 3.29 30.21-5.63z' fill='%231A7843'/%3E%3Cpath d='M50.46 66.17c10.03-7.13 15.47-16.68 12.16-21.33-3.32-4.64-14.14-2.63-24.17 4.51-10.03 7.13-15.47 16.68-12.15 21.33 3.31 4.64 14.13 2.63 24.16-4.51z' fill='%239EE2BD'/%3E%3Cpath d='M64.63 69.5c7.53-5.35 11.61-12.51 9.12-15.99-2.49-3.49-10.6-1.98-18.12 3.37-7.52 5.35-11.6 12.51-9.12 16 2.49 3.48 10.6 1.97 18.12-3.38z' fill='%23FACEFE'/%3E%3Cpath d='M57.09 83.41c5.02-3.57 7.74-8.34 6.08-10.66-1.66-2.33-7.07-1.32-12.08 2.25-5.02 3.57-7.74 8.34-6.08 10.66 1.66 2.33 7.07 1.32 12.08-2.25z' fill='%23ADDCFF'/%3E%3Cpath d='M62.91 86.74c2.51-1.78 3.87-4.17 3.04-5.33-.83-1.16-3.53-.66-6.04 1.12-2.51 1.79-3.87 4.17-3.04 5.33.83 1.17 3.53.66 6.04-1.12z' fill='%23F9A358'/%3E%3C/svg%3E"> Your Sutando suggests Take it</div>
           <div class="acts">
-            <button class="btn" type="button" data-act="Declined">Decline <kbd>N</kbd></button>
+            <button class="btn" type="button" data-act="Declined" id="declineBtn">Decline <kbd>N</kbd></button>
             <button class="btn" type="button" data-act="Saved for later">Later <kbd>L</kbd></button>
             <button class="btn primary suggested" type="button" data-act="Taken" id="takeBtn">
               <img class="mark s" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cpath d='M55.41 43.18c12.54-8.92 19.34-20.86 15.19-26.66-4.14-5.81-17.67-3.29-30.2 5.63-12.54 8.92-19.34 20.85-15.2 26.66 4.15 5.81 17.67 3.29 30.21-5.63z' fill='%231A7843'/%3E%3Cpath d='M50.46 66.17c10.03-7.13 15.47-16.68 12.16-21.33-3.32-4.64-14.14-2.63-24.17 4.51-10.03 7.13-15.47 16.68-12.15 21.33 3.31 4.64 14.13 2.63 24.16-4.51z' fill='%239EE2BD'/%3E%3Cpath d='M64.63 69.5c7.53-5.35 11.61-12.51 9.12-15.99-2.49-3.49-10.6-1.98-18.12 3.37-7.52 5.35-11.6 12.51-9.12 16 2.49 3.48 10.6 1.97 18.12-3.38z' fill='%23FACEFE'/%3E%3Cpath d='M57.09 83.41c5.02-3.57 7.74-8.34 6.08-10.66-1.66-2.33-7.07-1.32-12.08 2.25-5.02 3.57-7.74 8.34-6.08 10.66 1.66 2.33 7.07 1.32 12.08-2.25z' fill='%23ADDCFF'/%3E%3C/svg%3E">
@@ -378,10 +393,10 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
           <span class="pour" id="pour" aria-hidden="true"></span>
           <div class="receipt" id="receipt">
             <span class="r-edge" aria-hidden="true"></span>
-            <div class="rc-top"><img class="mark s" alt="" data-mark="yours"><span>You took review ownership · just now</span></div>
+            <div class="rc-top"><img class="mark s" alt="" data-mark="yours"><span id="rcLabel"></span></div>
             <div class="rc-title">Client #2174 · Delete Room</div>
             <div class="rc-status" id="rcStatus" aria-live="polite"></div>
-            <div class="rc-acts"><button class="btn primary" type="button">Open client #2174</button><button class="btn" type="button" id="undo">Undo</button><span class="rc-dest">Now in Activity › Moving</span></div>
+            <div class="rc-acts" id="rcActs"></div>
           </div>
         </article>
       </div>
@@ -406,7 +421,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
   <section aria-labelledby="s2">
     <div class="sec-head">
       <h2 id="s2">3 · In a list: one breathing dot at a time</h2>
-      <p class="muted">Only the top item that needs you breathes, as a small gradient dot, and its primary action carries the orange ring. Everything else waits with a still warm dot. Answer the top item and the breath and ring pass to the next one.</p>
+      <p class="muted">Only the top item that needs you breathes, as a small gradient dot, and its primary action carries the orange ring. Everything else waits with a still warm dot. Try every action. Take it and Decline are decisions: the button fills, then the row hands off. Open list and Review open the work: the breath moves on, but the item stays with a hollow dot until the work is done. Reply opens a composer, and Send is what clears it.</p>
     </div>
     <div class="stage">
       <div class="list" id="list">
@@ -416,9 +431,35 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
     </div>
   </section>
 
+  <section aria-labelledby="s6">
+    <div class="sec-head">
+      <h2 id="s6">4 · Every action is one of four kinds</h2>
+      <p class="muted">Take it is one kind of response. The cards in sections 2 and 3 use all four, and each kind treats the breath differently.</p>
+    </div>
+    <p class="rule-line"><strong>The breath goes where your answer goes.</strong> <span class="muted">If nothing has been answered yet, it just stops.</span></p>
+    <div class="kinds">
+      <div class="kind"><h3>Decide</h3><div class="eg"><span>Take it</span><span>Decline</span><span>Hand to Rui</span></div>
+        <dl><div><dt>The breath</dt><dd>Pours into the button you pressed.</dd></div>
+        <div><dt>The card</dt><dd>Folds into a note with Undo. The agent acts on your answer under the grey sweep.</dd></div>
+        <div><dt>In Activity</dt><dd>Take it → Moving, it’s yours. Decline → gone, the agent asks someone else. Hand to Rui → Waiting on Rui, and you hear back when he answers.</dd></div></dl></div>
+      <div class="kind"><h3>Open</h3><div class="eg"><span>Review</span><span>Open list</span><span>Open in thread</span></div>
+        <dl><div><dt>The breath</dt><dd>Stops, with no pour. Nothing has been answered yet.</dd></div>
+        <div><dt>The card</dt><dd>Stays, with a still hollow dot. Opening isn’t finishing.</dd></div>
+        <div><dt>In Activity</dt><dd>Stays in Needs you and clears itself when the work is done: the review approved, the P1s moved.</dd></div></dl></div>
+      <div class="kind"><h3>Reply</h3><div class="eg"><span>Reply</span></div>
+        <dl><div><dt>The breath</dt><dd>Stops while you type, then pours into Send.</dd></div>
+        <div><dt>The card</dt><dd>Becomes “You replied”, with your words.</dd></div>
+        <div><dt>In Activity</dt><dd>Leaves Needs you.</dd></div></dl></div>
+      <div class="kind"><h3>Snooze</h3><div class="eg"><span>Later</span></div>
+        <dl><div><dt>The breath</dt><dd>Stops, with no pour.</dd></div>
+        <div><dt>The card</dt><dd>Folds into a grey note: back tomorrow at 9:00, with Bring back now.</dd></div>
+        <div><dt>In Activity</dt><dd>Moves to Later, then returns to the top of Needs you, breathing again.</dd></div></dl></div>
+    </div>
+  </section>
+
   <section aria-labelledby="s4">
     <div class="sec-head">
-      <h2 id="s4">4 · Agent working: a quiet sweep</h2>
+      <h2 id="s4">5 · Agent working: a quiet sweep</h2>
       <p class="muted">A second, separate signal. The breath means something is waiting on you. A grey sweep across text means an agent is working on something right now. It stays neutral, never orange, so it never competes with what needs you, and it only ever runs on live status text. You can also see it in section 2: answer the card with Take it.</p>
     </div>
     <div class="stage">
@@ -432,7 +473,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
 
   <section aria-labelledby="s5">
     <div class="sec-head">
-      <h2 id="s5">5 · Why a dark primary button</h2>
+      <h2 id="s5">6 · Why a dark primary button</h2>
       <p class="muted">A proposal, not a decision. Weave’s Primary token is still blue. In this direction, colour already carries meaning: agent and room marks are colourful, orange means “waiting on you”, and blue is links and mentions. A near-black primary stays the strongest thing on screen without adding another colour to the mix, and it matches the dark send button in Caitlin’s direction.</p>
     </div>
     <div class="cmp">
@@ -473,7 +514,7 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
 
   <section aria-labelledby="s3">
     <div class="sec-head">
-      <h2 id="s3">6 · Rules and spec</h2>
+      <h2 id="s3">7 · Rules and spec</h2>
       <p class="muted">For engineering. Values match the Figma components “Question card (breathing)” and “Margin light (breathing)”.</p>
     </div>
     <div class="grid2">
@@ -487,8 +528,9 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
           <li><span>05</span>Stop when the item is seen or answered, and after about 3 breaths if ignored.</li>
           <li><span>06</span>Reduced motion: show the Rest state only, with no drift.</li>
           <li><span>07</span>Your own actions, like Reply, never breathe.</li>
-          <li><span>08</span>When you answer, the breath pours into the button you pressed and the card folds into a note. The note’s gradient edge turns grey once the hand-off is done, so orange still only means waiting on you.</li>
-          <li><span>09</span>A grey sweep means an agent is working. Only on live status text, never on headings or on anything waiting on you.</li>
+          <li><span>08</span>When you decide or send, the breath pours into the button you pressed and the card folds into a note. The note’s gradient edge turns grey once the hand-off is done, so orange still only means waiting on you.</li>
+          <li><span>09</span>Opening something is not answering it. Open stops the breath but keeps the item in Needs you, with a hollow dot, until the work is done. Snooze stops the breath with no pour.</li>
+          <li><span>10</span>A grey sweep means an agent is working. Only on live status text, never on headings or on anything waiting on you.</li>
         </ul>
       </div>
       <div style="display:grid;gap:14px;align-content:start">
@@ -543,16 +585,22 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
     bassil:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cpath d='M40.2 76.27c10.66-7.58 16.44-17.73 12.92-22.67-3.53-4.94-15.03-2.8-25.69 4.79-10.66 7.58-16.44 17.73-12.92 22.67 3.53 4.94 15.03 2.79 25.69-4.79z' fill='%23F9A357'/%3E%3Cpath d='M56.98 47.7c8.53-6.07 13.16-14.19 10.34-18.14-2.82-3.95-12.02-2.23-20.55 3.83-8.53 6.07-13.16 14.19-10.34 18.14 2.82 3.95 12.02 2.23 20.55-3.83z' fill='%23F0E345'/%3E%3Cpath d='M71.08 24.97c6.4-4.55 9.87-10.64 7.75-13.6-2.11-2.96-9.01-1.68-15.41 2.87-6.4 4.55-9.87 10.64-7.75 13.6 2.11 2.96 9.01 1.68 15.41-2.87z' fill='%23FACEFE'/%3E%3Cpath d='M75.08 44.21c4.27-3.03 6.58-7.09 5.17-9.07-1.41-1.97-6.01-1.12-10.27 1.92-4.27 3.03-6.58 7.09-5.17 9.07 1.41 1.97 6.01 1.12 10.27-1.92z' fill='%23F6C5B1'/%3E%3C/svg%3E"
   };
   var ITEMS=[
-    {who:'Sutando-rui-codex',agent:true,mark:'rui',sub:'Take or decline review ownership of client #2174 (Delete Room, Rui P1) · 8h',acts:[['Decline',''],['Take it','primary']]},
-    {who:'sutando-bassil',agent:true,mark:'bassil',sub:'4 overdue P1s are yours to move. No news since yesterday · 54m',acts:[['Open list','']]},
-    {who:'qingyun mentioned you',agent:false,initial:'Q',sub:'Hi @all I added a few product names that are relevant to our room commons feature… · 4h',acts:[['Reply','primary']]},
-    {who:'Sutando-rui-codex',agent:true,mark:'rui',sub:'Client #2203 is ready for your review: parent #2014 merged to dev · 8h',acts:[['Review','']]}
+    {who:'Sutando-rui-codex',agent:true,mark:'rui',sub:'Take or decline review ownership of client #2174 (Delete Room, Rui P1) · 8h',acts:[['Decline','','decide'],['Take it','primary','decide']]},
+    {who:'sutando-bassil',agent:true,mark:'bassil',sub:'4 overdue P1s are yours to move. No news since yesterday · 54m',acts:[['Open list','','open']],opened:'Opened · clears itself when the 4 P1s move'},
+    {who:'qingyun mentioned you',agent:false,initial:'Q',sub:'Hi @all I added a few product names that are relevant to our room commons feature… · 4h',acts:[['Reply','primary','reply']]},
+    {who:'Sutando-rui-codex',agent:true,mark:'rui',sub:'Client #2203 is ready for your review: parent #2014 merged to dev · 8h',acts:[['Review','','open']],opened:'Opened · clears itself when you approve the review'}
   ];
+  var DECIDE={
+    'Take it':{work:'Sutando-rui-codex is handing over context…',done:'✓ Yours · now in Activity › Moving'},
+    'Decline':{work:'Sutando-rui-codex is finding another reviewer…',done:'✓ Declined · Rui’s agent asked Bassil instead'}
+  };
   MARKS.yours=document.querySelector('.sug img').getAttribute('src');
   document.querySelectorAll('img[data-mark]').forEach(function(i){ i.src=MARKS[i.dataset.mark]; });
   var list=document.getElementById('list'), count=document.getElementById('count'), lstate=document.getElementById('lstate');
   function el(t,c,h){var e=document.createElement(t); if(c) e.className=c; if(h!=null) e.innerHTML=h; return e;}
+  var listTimers=[];
   function buildList(){
+    listTimers.forEach(clearTimeout); listTimers=[];
     list.querySelectorAll('.row').forEach(function(r){r.remove();});
     ITEMS.forEach(function(it,i){
       var r=el('div','row'); r.dataset.i=i;
@@ -562,28 +610,59 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
       var body=el('div',''); body.style.minWidth='0';
       var t=el('div','r-title'); t.appendChild(document.createTextNode(it.who)); if(it.agent) t.appendChild(el('span','agent-label','AGENT'));
       body.appendChild(t); var s=el('div','r-sub'); s.textContent=it.sub; body.appendChild(s); r.appendChild(body);
-      var a=el('div','r-acts'); it.acts.forEach(function(x){ var b=el('button','row-act '+x[1]); b.type='button'; b.textContent=x[0]; b.addEventListener('click',function(){ resolve(r,x[0]); }); a.appendChild(b); });
+      var a=el('div','r-acts'); it.acts.forEach(function(x){ var b=el('button','row-act '+x[1]); b.type='button'; b.textContent=x[0]; b.addEventListener('click',function(){ act(r,b,x[0],x[2]); }); a.appendChild(b); });
       r.appendChild(a); list.appendChild(r);
     });
     paint();
   }
+  function isOpen(r){ return !r.classList.contains('done') && !r.classList.contains('working'); }
   function paint(){
-    var open=[].slice.call(list.querySelectorAll('.row:not(.done)'));
+    var open=[].slice.call(list.querySelectorAll('.row')).filter(isOpen);
+    var live=open.filter(function(r){ return !r.classList.contains('seen'); });
     list.querySelectorAll('.edge').forEach(function(e){ e.innerHTML=''; });
     list.querySelectorAll('.row-act.ring').forEach(function(b){ b.classList.remove('ring'); });
-    open.forEach(function(r,idx){ r.querySelector('.edge').appendChild(el('span', idx===0?'mlight':'dot')); if(idx===0){ var p=r.querySelector('.row-act.primary')||r.querySelector('.row-act'); if(p) p.classList.add('ring'); } });
+    open.forEach(function(r){
+      var top=(r===live[0]);
+      r.querySelector('.edge').appendChild(el('span', top?'mlight':(r.classList.contains('seen')?'dot hollow':'dot')));
+      if(top){ var p=r.querySelector('.row-act.primary')||r.querySelector('.row-act'); if(p) p.classList.add('ring'); }
+    });
     count.textContent=open.length;
-    lstate.textContent= open.length ? ITEMS[+open[0].dataset.i].who : 'Nothing. All clear';
+    lstate.textContent= live.length ? ITEMS[+live[0].dataset.i].who : (open.length ? 'Nothing breathing · '+open.length+' opened, not finished' : 'Nothing. All clear');
   }
-  function resolve(r,label){
-    if(r.classList.contains('done')) return;
-    r.classList.add('done');
-    var a=r.querySelector('.r-acts'); a.innerHTML=''; a.appendChild(el('span','done-tick','✓ '+label));
-    paint();
+  function sub(r){ return r.querySelector('.r-sub'); }
+  function pulse(b){ if(!reduced()) b.animate([{transform:'scale(1)'},{transform:'scale(1.08)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,0,.2,1)'}); }
+  function act(r,b,label,kind){
+    if(!isOpen(r)) return;
+    if(kind==='open'){
+      r.classList.add('seen'); sub(r).textContent=ITEMS[+r.dataset.i].opened; b.textContent='Open again'; paint(); return;
+    }
+    if(kind==='reply'){
+      if(r.querySelector('.composer')) return;
+      r.classList.add('seen'); var c=el('div','composer');
+      var inp=document.createElement('input'); inp.type='text'; inp.value='Thanks, I’ll go through the names tonight.'; inp.setAttribute('aria-label','Reply to qingyun');
+      var send=el('button','row-act primary'); send.type='button'; send.textContent='Send';
+      c.appendChild(inp); c.appendChild(send); r.appendChild(c); b.remove(); paint(); inp.focus();
+      function go(){ var msg=inp.value.trim()||'👍'; r.classList.add('working'); send.classList.add('absorbed'); pulse(send); paint();
+        listTimers.push(setTimeout(function(){ c.remove(); sub(r).textContent='✓ You replied: '+msg; r.querySelector('.r-acts').innerHTML=''; r.classList.remove('working'); r.classList.add('done'); paint(); }, reduced()?100:800)); }
+      send.addEventListener('click',go); inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } });
+      return;
+    }
+    // decide
+    var o=DECIDE[label]; r.classList.add('working'); b.classList.add('absorbed'); pulse(b); paint();
+    listTimers.push(setTimeout(function(){
+      r.querySelectorAll('.row-act').forEach(function(x){ if(x!==b) x.remove(); });
+      sub(r).innerHTML=''; sub(r).appendChild(el('span','sweep',o.work));
+      listTimers.push(setTimeout(function(){ sub(r).textContent=o.done; r.querySelector('.r-acts').innerHTML=''; r.classList.remove('working'); r.classList.add('done'); paint(); }, 2400));
+    }, reduced()?100:700));
   }
 
   var shell=document.getElementById('qshell'), card=document.getElementById('qcard'), halo=shell.querySelector('.halo'), qstate=document.getElementById('qstate'), note=document.getElementById('seenNote');
-  var takeBtn=document.getElementById('takeBtn'), pour=document.getElementById('pour'), receipt=document.getElementById('receipt'), rcStatus=document.getElementById('rcStatus');
+  var pour=document.getElementById('pour'), receipt=document.getElementById('receipt'), rcStatus=document.getElementById('rcStatus'), rcLabel=document.getElementById('rcLabel'), rcActs=document.getElementById('rcActs');
+  var OUT={
+    'Taken':{btn:'takeBtn',label:'You took review ownership · just now',work:'Sutando-rui-codex is handing over context…',done:'Handed over: why it’s you, 2 open threads and the merge checklist',acts:[['Open client #2174','primary'],['Undo','','undo']],dest:'Now in Activity › Moving',state:'Yours · Activity › Moving'},
+    'Declined':{btn:'declineBtn',label:'You declined · just now',work:'Sutando-rui-codex is finding another reviewer…',done:'Rui’s agent asked Bassil instead. It only comes back to you if he passes.',acts:[['Undo','','undo']],dest:'Gone from Needs you',state:'Declined · re-routed by Rui’s agent'},
+    'Saved for later':{btn:null,snooze:true,label:'Snoozed · back tomorrow at 9:00',done:'It comes back to the top of Needs you, breathing again.',acts:[['Bring back now','','undo']],dest:'Activity › Later',state:'Snoozed · no pour'}
+  };
   var timers=[];
   function later(fn,ms){ timers.push(setTimeout(fn,ms)); }
   function reduced(){ return root.classList.contains('still') || window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
@@ -594,17 +673,17 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
   }
   function settle(label){
     if(busy()) return;
-    if(label==='Taken'){ take(); return; }
+    if(OUT[label]){ answer(OUT[label]); return; }
     if(!shell.classList.contains('is-seen')){ freezeHalo(); shell.classList.add('is-seen'); }
-    qstate.textContent= label ? 'Answered' : 'Seen';
-    note.textContent = label ? '✓ '+label : 'Seen · the ring stays on the suggested answer';
+    qstate.textContent='Seen'; note.textContent='Seen · the ring stays on the suggested answer';
   }
-  function take(){
+  function answer(o){
+    var btn=o.btn?document.getElementById(o.btn):null;
     var wasSeen=shell.classList.contains('is-seen');
-    shell.classList.add('is-seen','is-taking'); note.textContent=''; qstate.textContent='Taking it';
+    shell.classList.add('is-seen','is-taking'); note.textContent=''; qstate.textContent= btn?'Answering':'Snoozing';
     if(!wasSeen) freezeHalo();
-    if(reduced()){ takeBtn.classList.add('absorbed'); later(fold,300); return; }
-    var c=card.getBoundingClientRect(), b=takeBtn.getBoundingClientRect();
+    if(!btn || reduced()){ if(btn) btn.classList.add('absorbed'); later(function(){ fold(o); }, btn?300:350); return; }
+    var c=card.getBoundingClientRect(), b=btn.getBoundingClientRect();
     var x=b.left-c.left-card.clientLeft, y=b.top-c.top-card.clientTop;
     pour.style.display='block';
     var anim=pour.animate([
@@ -614,37 +693,39 @@ kbd{font:400 11px/1 var(--font);padding:3px 5px;border-radius:4px;background:var
     ],{duration:700,easing:'cubic-bezier(.55,0,.2,1)',fill:'forwards'});
     anim.onfinish=function(){
       if(!shell.classList.contains('is-taking')) return;
-      takeBtn.classList.add('absorbed');
-      takeBtn.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,0,.2,1)'});
+      btn.classList.add('absorbed'); pulse(btn);
       pour.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'});
-      later(fold,700);
+      later(function(){ fold(o); },700);
     };
   }
-  function fold(){
+  function fold(o){
     var h0=card.getBoundingClientRect().height;
-    shell.classList.remove('is-taking'); shell.classList.add('is-taken'); receipt.classList.remove('settled');
-    rcStatus.innerHTML=''; rcStatus.appendChild(el('span','sweep','Sutando-rui-codex is handing over context…'));
-    qstate.textContent='Agent working';
+    shell.classList.remove('is-taking'); shell.classList.add('is-taken');
+    receipt.classList.remove('settled'); receipt.classList.toggle('snooze',!!o.snooze);
+    rcLabel.textContent=o.label; rcActs.innerHTML='';
+    o.acts.forEach(function(x){ var bt=el('button','btn '+x[1],null); bt.type='button'; bt.textContent=x[0]; if(x[2]==='undo') bt.dataset.undo='1'; rcActs.appendChild(bt); });
+    rcActs.appendChild(el('span','rc-dest',o.dest));
+    if(o.work){
+      rcStatus.innerHTML=''; rcStatus.appendChild(el('span','sweep',o.work)); qstate.textContent='Agent working';
+      later(function(){ rcStatus.textContent=o.done; receipt.classList.add('settled'); qstate.textContent=o.state; }, 3400);
+    } else { rcStatus.textContent=o.done; receipt.classList.add('settled'); qstate.textContent=o.state; }
     var h1=card.getBoundingClientRect().height;
     if(!reduced()){
       card.style.overflow='hidden';
       card.animate([{height:h0+'px'},{height:h1+'px'}],{duration:480,easing:'cubic-bezier(.2,.7,.2,1)'}).onfinish=function(){ card.style.overflow=''; };
       receipt.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:360,delay:160,easing:'ease-out',fill:'backwards'});
     }
-    later(function(){
-      rcStatus.textContent='Handed over: why it’s you, 2 open threads and the merge checklist';
-      receipt.classList.add('settled'); qstate.textContent='Yours · Activity › Moving';
-    }, 3400);
   }
   function resetCard(){
     timers.forEach(clearTimeout); timers=[];
-    [pour,takeBtn,card,receipt].forEach(function(n){ n.getAnimations().forEach(function(x){ x.cancel(); }); });
+    var btns=[].slice.call(card.querySelectorAll('.acts .btn'));
+    btns.concat([pour,card,receipt]).forEach(function(n){ n.getAnimations().forEach(function(x){ x.cancel(); }); });
     pour.style.display=''; card.style.overflow='';
-    shell.classList.remove('is-seen','is-taking','is-taken'); takeBtn.classList.remove('absorbed'); receipt.classList.remove('settled');
+    shell.classList.remove('is-seen','is-taking','is-taken'); btns.forEach(function(x){ x.classList.remove('absorbed'); }); receipt.classList.remove('settled','snooze');
     halo.removeAttribute('style'); qstate.textContent='Breathing'; note.textContent=''; rcStatus.textContent='';
   }
   card.addEventListener('click',function(e){
-    if(e.target.closest('#undo')){ resetCard(); return; }
+    if(e.target.closest('[data-undo]')){ resetCard(); return; }
     if(e.target.closest('.receipt')) return;
     var b=e.target.closest('[data-act]'); settle(b?b.dataset.act:null);
   });
