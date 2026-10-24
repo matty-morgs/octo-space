@@ -5,5 +5,6 @@ Specs and explorations for s.space, shared for review. Each piece lives in its o
 | Piece | Folder | Status |
 | --- | --- | --- |
 | Attention signals | `attention-signals/` | Proposed |
+| Onboarding · aura in motion | `onboarding-aura/` | Exploration |
 
 The source designs are in Figma: [AG2] Product.

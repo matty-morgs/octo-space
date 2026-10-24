@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>s.space Aura in Motion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a macOS window on a pale desk; live orb field behind a white card; controls above. Single light theme on purpose (white is the point). */
+:root{
+  --desk:#EEEDEB; --surface:#FFFFFF; --ink:#1C1C1C; --ink-2:#5C5C5C; --ink-3:#8F8F8F;
+  --line:#EDEDEC; --control:#8F8F8F; --ok:#1E7B4A; --ember:#F9A358; --ember-ink:#9B5725;
+  --sky:#ADDBFF; --pink:#F8CEFE; --hot:#F2661E;
+  --display:"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --ui:"Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --agent-c:#F9A358; --agent-r:#F2661E;
+  color-scheme: light;
+}
+html,body{background:var(--desk);color:var(--ink)}
+body{font-family:var(--ui);padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:28px 48px}
+.wrap{max-width:1200px;margin:0 auto;display:grid;gap:18px}
+header{display:grid;gap:14px}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,3.4vw,40px);letter-spacing:-.03em;line-height:1.05;margin:0;text-wrap:balance}
+.lede{margin:6px 0 0;color:var(--ink-2);font-size:15px;line-height:1.5;max-width:70ch}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ctl-label{font:500 11px/1 var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-right:-2px}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{all:unset;cursor:pointer;font:500 13px/1 var(--ui);color:var(--ink-2);padding:9px 14px;border-radius:999px;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.seg button:focus-visible,.pill:focus-visible,.btn:focus-visible,.sw:focus-visible,.chip:focus-visible{outline:2px solid var(--ember);outline-offset:3px}
+.pill{all:unset;cursor:pointer;font:500 13px/1 var(--ui);color:var(--ink);background:var(--surface);border:1px solid var(--line);padding:10px 14px;border-radius:999px}
+.stage{position:relative;width:100%;aspect-ratio:3/2;max-width:100%}
+.win{position:absolute;left:0;top:0;width:1200px;height:800px;transform-origin:0 0;border-radius:14px;overflow:hidden;background:#FAFAFA;box-shadow:0 24px 60px rgba(0,0,0,.16),0 0 0 .5px rgba(0,0,0,.18)}
+canvas{position:absolute;inset:0;width:1200px;height:800px;transition:filter 1.2s ease, opacity .8s ease}
+.win.aura canvas{filter:blur(34px) saturate(1.25)}
+.win.aura.focus canvas,.win.focus canvas{filter:blur(18px) saturate(1.1);transition:filter .2s ease, opacity .8s ease}
+.win.zoom canvas,.win.aura.zoom canvas{filter:blur(22px) saturate(1.15);transition:filter .5s ease, opacity .45s ease}
+.win.landed canvas{opacity:0}
+.lights{position:absolute;left:20px;top:20px;display:flex;gap:8px;z-index:5}
+.lights i{width:12px;height:12px;border-radius:50%;display:block}
+.screen{position:absolute;inset:0;display:grid;place-items:center;z-index:2}
+.screen[hidden]{display:none!important}
+.card{background:var(--surface);border-radius:32px;padding:44px;box-shadow:0 24px 64px rgba(102,51,13,.10);display:grid;gap:22px;width:640px}
+.card.narrow{width:600px;justify-items:center;text-align:center}
+.screen.enter-fwd .card{animation:inFwd .55s .06s cubic-bezier(.2,.8,.2,1) both}
+.screen.enter-back .card{animation:inBack .55s .06s cubic-bezier(.2,.8,.2,1) both}
+.screen.exit-fwd,.screen.exit-back{pointer-events:none}
+.screen.exit-fwd .card{animation:outFwd .38s cubic-bezier(.4,0,.6,1) both}
+.screen.exit-back .card{animation:outBack .38s cubic-bezier(.4,0,.6,1) both}
+.leaving .card{animation:cardOut .45s cubic-bezier(.4,0,.2,1) both}
+.card.morphing{position:relative;overflow:hidden}
+.morph{position:absolute;inset:0;pointer-events:none;z-index:5}
+@keyframes inFwd{from{opacity:0;transform:translateX(56px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes inBack{from{opacity:0;transform:translateX(-56px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes outFwd{to{opacity:0;transform:translateX(-56px) scale(.97)}}
+@keyframes outBack{to{opacity:0;transform:translateX(56px) scale(.97)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes cardOut{to{opacity:0;transform:scale(.94)}}
+.lockup{display:flex;align-items:center;gap:10px}
+.lockup svg{display:block;height:26px;width:auto}
+.h-xl{font:600 44px/1.05 var(--display);letter-spacing:-.035em;margin:0;text-wrap:balance}
+.h-l{font:600 34px/1.1 var(--display);letter-spacing:-.03em;margin:0}
+.sub{color:var(--ink-2);font-size:16px;line-height:1.5;margin:0}
+.small{color:var(--ink-3);font-size:12px;line-height:1.5;margin:0}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spread{display:flex;gap:8px;align-items:center;justify-content:space-between}
+/* buttons */
+.btn{all:unset;cursor:pointer;height:48px;padding:0 24px;border-radius:999px;font:600 15px/48px var(--ui);display:inline-flex;align-items:center;gap:8px;white-space:nowrap;position:relative;transition:transform .18s cubic-bezier(.3,.7,.3,1.4), box-shadow .2s}
+.btn:hover{transform:scale(1.04)}
+.btn:active{transform:scale(.95);transition-duration:.08s}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.ghost{color:var(--ink-2);padding:0 12px}
+.btn.brand{background:#fff;color:var(--ink);box-shadow:inset 2px 2px 10px rgba(249,163,88,.32),inset -2px -2px 10px rgba(249,163,88,.32)}
+.btn.key{background:transparent;color:#fff;z-index:0;isolation:isolate}
+.btn.key::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;background:var(--ink)}
+.btn.key::before{transition:inset .26s cubic-bezier(.5,0,.2,1), filter .26s cubic-bezier(.5,0,.2,1), opacity .2s}
+/* press: the glow is drawn in, sharpening into the fill */
+.btn.key.pour{color:var(--ink);transition:color .1s, transform .18s}
+.btn.key.pour::after{z-index:-2}
+.btn.key.pour::before{z-index:-1;inset:0;filter:blur(0);opacity:1;animation:sweep 4s linear infinite}
+.btn.key::before{content:"";position:absolute;inset:-4px;border-radius:inherit;z-index:-2;background:linear-gradient(90deg,var(--sky),var(--pink),var(--ember),var(--hot),var(--pink),var(--sky));background-size:300% 100%;filter:blur(9px);opacity:.8;animation:sweep 4s linear infinite, breathe 2.6s ease-in-out infinite}
+.btn.key:hover::before{opacity:1;inset:-6px}
+@keyframes sweep{to{background-position:300% 0}}
+@keyframes breathe{0%,100%{opacity:.55;transform:scale(.97)}50%{opacity:.95;transform:scale(1.03)}}
+.progress{height:4px;border-radius:2px;background:rgba(28,28,28,.08);overflow:hidden}
+.progress i{display:block;height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,var(--sky),var(--pink) 50%,var(--hot));transition:width 1s cubic-bezier(.65,0,.25,1)}
+.ident{display:flex;gap:16px;align-items:center}
+.avatar{width:72px;height:64px;flex:none;display:grid;place-items:center;position:relative}
+.avatar::after{content:"";position:absolute;inset:-6px;border-radius:50%;background:radial-gradient(closest-side,var(--agent-c),transparent);filter:blur(10px);z-index:0;animation:halo 3.4s ease-in-out infinite;transition:background .6s}
+.avatar i{width:70px;height:36px;border-radius:50%;display:block;position:relative;z-index:1;background:radial-gradient(closest-side,var(--agent-c) 60%,var(--agent-r));animation:float 5s ease-in-out infinite;transition:background .5s}
+.avatar.hit i{animation:float 5s ease-in-out infinite, hit .6s cubic-bezier(.3,.7,.3,1.5)}
+.avatar .splash{position:absolute;left:50%;top:50%;width:70px;height:36px;margin:-18px 0 0 -35px;border-radius:50%;z-index:2;pointer-events:none}
+.mini.hit{animation:hit .7s cubic-bezier(.3,.7,.3,1.6)}
+@keyframes float{0%,100%{transform:rotate(-46.7deg) translate(0,0)}50%{transform:rotate(-42deg) translate(2px,-3px)}}
+@keyframes halo{0%,100%{opacity:.25;transform:scale(.9)}50%{opacity:.75;transform:scale(1.12)}}
+@keyframes hit{0%{scale:1}35%{scale:1.28}100%{scale:1}}
+.label{font:500 13px/1 var(--ui);color:var(--ink-2);margin:0 0 8px}
+.field{height:48px;border:1px solid var(--control);border-radius:14px;padding:0 16px;display:flex;align-items:center;font-size:15px}
+.mono{font:500 13px/1 var(--mono)}
+.tag{font:600 10px/1 var(--ui);letter-spacing:.06em;color:var(--ember-ink);padding:4px 7px;border-radius:999px;background:#fff;box-shadow:inset .6px .6px 4px rgba(249,163,88,.4),inset -.6px -.6px 4px rgba(249,163,88,.4)}
+.two{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:end}
+.swatches{display:flex;gap:10px}
+.sw{all:unset;cursor:pointer;width:36px;height:36px;border-radius:50%;transition:transform .2s cubic-bezier(.3,.7,.3,1.5), box-shadow .2s}
+.sw:hover{transform:scale(1.18)}
+.sw:active{transform:scale(.88);transition-duration:.08s}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ink)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{border-radius:18px;padding:16px;display:grid;gap:4px;background:#FAFAFA;border:1px solid rgba(28,28,28,.1)}
+.opt.on{background:#fff;border:1.5px solid var(--ink);box-shadow:inset 2px 2px 10px rgba(249,163,88,.3),inset -2px -2px 10px rgba(249,163,88,.3)}
+.opt b{font-weight:600;font-size:15px}.opt span{font-size:13px;color:var(--ink-2)}.opt em{font-style:normal;font-weight:500;font-size:12px;color:var(--ink-3)}.opt.on em{color:var(--ok)}
+.perms{display:grid;gap:8px}
+.perm{display:flex;align-items:center;gap:16px;background:#FAFAFA;border-radius:18px;padding:14px 16px}
+.well{width:40px;height:40px;border-radius:12px;background:#fff;display:grid;place-items:center;flex:none}
+.perm div{flex:1;min-width:0}.perm b{display:block;font-weight:600;font-size:15px}.perm span{font-size:13px;color:var(--ink-2)}
+.ok{color:var(--ok);font:500 14px var(--ui);display:flex;gap:6px;align-items:center}
+.eyebrow{font:500 13px/1 var(--ui);color:var(--ember-ink);margin:0}
+.fly{position:absolute;left:0;top:0;width:34px;height:18px;border-radius:50%;z-index:6;pointer-events:none;box-shadow:0 0 18px 4px var(--glow,rgba(249,163,88,.6))}
+/* app shell after launch */
+.app{position:absolute;inset:0;z-index:4;background:#F4F4F4;display:grid;grid-template-columns:256px 1fr;opacity:0;transform:scale(1.03);transition:opacity .45s ease, transform .8s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.app.in{opacity:1;transform:none;pointer-events:auto}
+.side{padding:60px 12px 20px;display:flex;flex-direction:column;gap:6px}
+.side .lockup{padding:0 12px 18px}
+.side .lockup svg{height:18px}
+.navlab{font:600 11px/1 var(--ui);letter-spacing:.06em;color:var(--ink-3);padding:14px 12px 6px}
+.nav{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:10px;font:500 14px var(--ui)}
+.nav.on{background:#fff;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.mini{width:22px;height:12px;border-radius:50%;transform:rotate(-46.7deg);background:radial-gradient(closest-side,var(--agent-c) 60%,var(--agent-r));flex:none}
+.hash{width:24px;height:24px;border-radius:7px;background:#fff;display:grid;place-items:center;font:600 13px var(--ui);color:var(--ink-2)}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:0 12px;font:500 14px var(--ui)}
+.room{margin:12px 12px 12px 0;background:#fff;border-radius:16px;border:1px solid var(--line);display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+.roomhead{display:flex;align-items:center;gap:10px;padding:18px 24px;border-bottom:1px solid var(--line);font:600 16px var(--ui)}
+.thread{padding:28px 24px;display:grid;align-content:start;gap:12px}
+.msg{display:flex;gap:14px}
+.msg .mini{width:36px;height:19px;margin-top:8px}
+.msg p{margin:0;font-size:15px;line-height:23px;max-width:62ch}
+.who{display:flex;align-items:center;gap:8px;font:600 14px var(--ui);margin-bottom:6px}
+.who time{font:400 12px var(--ui);color:var(--ink-3)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{all:unset;cursor:pointer;height:40px;padding:0 18px;border-radius:999px;font:600 14px/40px var(--ui);background:#fff;box-shadow:inset 2px 2px 10px rgba(249,163,88,.32),inset -2px -2px 10px rgba(249,163,88,.32);transition:transform .18s cubic-bezier(.3,.7,.3,1.4)}
+.chip:hover{transform:scale(1.04)}
+.composer{margin:24px;height:52px;border:1px solid var(--control);border-radius:14px;display:flex;align-items:center;padding:0 8px 0 18px;color:#ABABAB;font-size:15px}
+.composer > span:first-child{flex:1}
+.send{flex:none;width:36px;height:36px;border-radius:50%;background:var(--ink);display:grid;place-items:center}
+.app .msg{animation:cardIn .6s .5s cubic-bezier(.2,.8,.2,1) both}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 28px;color:var(--ink-2);font-size:14px;line-height:1.55}
+.notes p{margin:0}
+.notes b{color:var(--ink);font-weight:600;display:block;margin-bottom:2px}
+.count{font:500 12px/1 var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion: reduce){
+  .btn.key::before,.avatar i,.avatar::after{animation:none}
+  .card,.app .msg{animation:none}
+  .progress i,canvas,.app{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Aura in motion</h1>
+      <p class="lede">Direction G with a live background. Orbs shoot in on the brand's tilt and collide on their real shape. Choose what a collision does, pick an agent colour on Meet and watch it fly to your Sutando, then finish the flow to see everything gather into one orb that launches the app.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Screen">
+        <button id="tab-welcome" aria-pressed="true" data-screen="welcome">01 Welcome</button>
+        <button id="tab-meet" aria-pressed="false" data-screen="meet">11 Meet</button>
+        <button id="tab-perms" aria-pressed="false" data-screen="perms">23 See and act</button>
+      </div>
+      <span class="ctl-label">Collide</span>
+      <div class="seg" role="group" aria-label="Collision">
+        <button id="col-absorb" aria-pressed="true" data-col="absorb">Absorb</button>
+        <button id="col-merge" aria-pressed="false" data-col="merge">Merge</button>
+        <button id="col-bounce" aria-pressed="false" data-col="bounce">Bounce</button>
+      </div>
+      <span class="ctl-label">Speed</span>
+      <div class="seg" role="group" aria-label="Speed">
+        <button id="spd-calm" aria-pressed="true" data-spd="1">Calm</button>
+        <button id="spd-fast" aria-pressed="false" data-spd="2.3">Fast</button>
+      </div>
+      <div class="seg" role="group" aria-label="Background">
+        <button id="mode-aura" aria-pressed="true" data-mode="aura">Aura</button>
+        <button id="mode-crisp" aria-pressed="false" data-mode="crisp">Crisp</button>
+      </div>
+      <button class="pill" id="pause" aria-pressed="false">Pause</button>
+      <button class="pill" id="replay">Replay</button>
+    </div>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="win aura" id="win">
+      <canvas id="cv" width="1200" height="800" aria-hidden="true"></canvas>
+      <div class="lights"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i></div>
+
+      <section class="screen enter-fwd" id="screen-welcome" aria-label="Welcome">
+        <div class="card narrow">
+          <div class="lockup" aria-label="s.space">
+            <svg viewBox="0 0 48 49" aria-hidden="true"><path fill="#1C1C1C" d="M42.6166 4.35195C34.4861 -3.30661 19.4915 -0.592517 9.13058 10.4135C-1.23425 21.4155 -3.04367 36.5439 5.08692 44.2024C13.2175 51.861 28.2121 49.1469 38.573 38.1409C48.9378 27.1388 50.7472 12.0105 42.6166 4.35195ZM32.4485 22.4815C35.1941 25.0698 33.0936 31.7607 27.7558 37.4289C22.418 43.0971 15.8648 45.5949 13.1152 43.0106C10.3696 40.4223 12.4701 33.7314 17.8079 28.0632C18.1344 27.717 18.4609 27.3867 18.7952 27.0641C17.3477 27.19 16.1205 26.8792 15.2629 26.0689C12.5173 23.4807 14.6178 16.7897 19.9556 11.1215C25.2934 5.45332 31.8467 2.95551 34.5962 5.53984C37.3418 8.12809 35.2413 14.819 29.9035 20.4872C29.577 20.8334 29.2505 21.1638 28.9162 21.4863C30.3637 21.3605 31.591 21.6712 32.4485 22.4815Z"/></svg>
+            <svg class="wmsvg" viewBox="0 0 177 40" aria-hidden="true"><g fill="#1C1C1C"><path d="M0 25.1431L7.7097 24.1597C7.92604 29.6115 9.881 32.723 13.5195 32.723C16.0724 32.723 17.807 31.0316 17.807 28.522C17.807 20.3953 1.03058 25.4145 1.08565 11.1791C1.08565 4.79889 6.2425 0 12.9216 0C19.6007 0 25.1903 4.63369 25.4617 12.544L17.4806 13.4172C17.3704 8.78355 15.1991 6.65551 12.9216 6.65551C10.6441 6.65551 9.33818 8.40199 9.33818 10.3648C9.33818 18.3813 26.0045 12.8744 26.0045 28.1443C26.0045 34.6897 20.8477 39.3785 13.5195 39.3785C5.5384 39.3785 0.436621 33.7063 0 25.1431Z"/><path d="M28.2266 30.5953H36.6404V38.722H28.2266V30.5953Z"/><path d="M38.8164 25.1431L46.5261 24.1597C46.7424 29.6115 48.6974 32.723 52.3359 32.723C54.8888 32.723 56.6235 31.0316 56.6235 28.522C56.6235 20.3953 39.847 25.4145 39.9021 11.1791C39.9021 4.79889 45.0589 0 51.738 0C58.4171 0 64.0067 4.63369 64.2781 12.544L56.297 13.4172C56.1868 8.78355 54.0155 6.65551 51.738 6.65551C49.4605 6.65551 48.1546 8.40199 48.1546 10.3648C48.1546 18.3813 64.8209 12.8744 64.8209 28.1443C64.8209 34.6897 59.6641 39.3785 52.3359 39.3785C44.3548 39.3785 39.253 33.7063 38.8164 25.1431Z"/><path d="M91.7464 13.9046C91.7464 21.811 87.1874 27.1567 79.0411 27.1567H75.5127V38.7173H67.4766V0.652588H79.0411C87.1835 0.652588 91.7464 5.99824 91.7464 13.9046ZM83.5489 13.9046C83.5489 9.54235 81.2164 7.19797 77.6841 7.19797H75.5127V20.6152H77.6841C81.2124 20.6152 83.5489 18.2158 83.5489 13.9086V13.9046Z"/><path d="M111.455 29.6662H100.814L98.5881 38.7173H90.3906L99.9452 0.652588H112.43L122.095 38.7173H113.681L111.455 29.6662ZM109.877 23.1248L106.133 7.96502L102.388 23.1248H109.881H109.877Z"/><path d="M121.227 19.6873C121.227 8.01651 127.524 0 136.968 0C144.678 0 150.323 4.74381 151.79 15.1047L143.648 15.9229C143.16 9.2713 140.446 6.54145 136.968 6.54145C132.41 6.54145 129.424 11.832 129.424 19.6833C129.424 27.5346 132.41 32.8252 137.024 32.8252C140.607 32.8252 143.376 29.2811 143.648 24.0456L151.684 24.4822C151.086 33.4821 145.496 39.3706 137.028 39.3706C127.528 39.3706 121.23 31.3541 121.23 19.6833L121.227 19.6873Z"/><path d="M154.723 0.657227H176.491V7.20261H162.755V15.8209H174.536V22.3663H162.755V32.1844H176.652V38.7298H154.719V0.665101L154.723 0.657227Z"/></g></svg>
+          </div>
+          <h2 class="h-xl">A new kind of network for people and their agents.</h2>
+          <p class="sub" style="max-width:420px">Bring your people and AI agents together to collaborate, create and get things done.</p>
+          <div class="row" style="justify-content:center;gap:14px">
+            <button class="btn key" data-go="meet">Get started →</button>
+            <button class="btn ghost">I have an account</button>
+          </div>
+          <p class="small">Own Matrix server? Use a different server</p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-meet" aria-label="Meet your Sutando" hidden>
+        <div class="card">
+          <div class="progress"><i data-w="40"></i></div>
+          <div class="ident">
+            <div class="avatar" id="avatar"><i></i></div>
+            <div>
+              <h2 class="h-l">Meet your Sutando.</h2>
+              <p class="sub" style="font-size:14px">Your own agent. Runs on this Mac and keeps working while you're away.</p>
+            </div>
+          </div>
+          <div class="two">
+            <div><p class="label">Name</p><div class="field">Matt's Sutando</div></div>
+            <div><p class="label">Address · permanent</p><div class="row" style="height:48px"><span class="mono">@matt-sutando</span><span class="tag">AGENT</span></div></div>
+          </div>
+          <div>
+            <p class="label">Colour <span style="color:var(--ink-3)">· the room takes it on</span></p>
+            <div class="swatches" id="swatches"></div>
+          </div>
+          <div class="opts">
+            <div class="opt on"><b>Claude Code</b><span>by Anthropic</span><em>Found on this Mac · signed in</em></div>
+            <div class="opt"><b>Codex</b><span>by OpenAI</span><em>Not installed · we'll set it up</em></div>
+          </div>
+          <div class="spread">
+            <button class="btn ghost" data-go="welcome">← Back</button>
+            <button class="btn key" data-go="perms">Continue →</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-perms" aria-label="Let it see and act" hidden>
+        <div class="card">
+          <div class="progress"><i data-w="80"></i></div>
+          <div style="display:grid;gap:6px">
+            <p class="eyebrow">Optional</p>
+            <h2 class="h-l">Let it see and act.</h2>
+            <p class="sub" style="font-size:14px">Give your Sutando eyes and hands on this Mac, only when you ask. Change this any time in Settings.</p>
+          </div>
+          <div class="perms">
+            <div class="perm"><span class="well"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="3.5" width="15" height="10" rx="1.5" stroke="#1C1C1C" stroke-width="1.5"/><path d="M7 17h6M10 13.5V17" stroke="#1C1C1C" stroke-width="1.5" stroke-linecap="round"/></svg></span><div><b>Screen recording</b><span>See your screen</span></div><span class="ok"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3L13 4.5" stroke="#1E7B4A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Allowed</span></div>
+            <div class="perm"><span class="well"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 3l11 5.2-4.6 1.4L8.9 14 4 3z" stroke="#1C1C1C" stroke-width="1.5" stroke-linejoin="round"/><path d="M11 11l4 4" stroke="#1C1C1C" stroke-width="1.5" stroke-linecap="round"/></svg></span><div><b>Accessibility</b><span>Operate other apps</span></div><button class="btn brand" style="height:40px;line-height:40px">Allow</button></div>
+            <div class="perm"><span class="well"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.25" stroke="#1C1C1C" stroke-width="1.5"/><path d="M2.75 10h14.5M10 2.75c2 2.2 3 4.6 3 7.25s-1 5.05-3 7.25c-2-2.2-3-4.6-3-7.25s1-5.05 3-7.25z" stroke="#1C1C1C" stroke-width="1.5"/></svg></span><div><b>Chrome extension</b><span>Browse in your Chrome</span></div><button class="btn ghost">Get Chrome ↗</button></div>
+          </div>
+          <p class="small">macOS asks you to quit and reopen once after Screen recording. We'll bring you straight back here.</p>
+          <div class="spread">
+            <button class="btn ghost" data-go="meet">← Back</button>
+            <div class="row" style="gap:12px"><button class="btn ghost" data-go="finale">Skip for now</button><button class="btn key" id="finishBtn" data-go="finale">Finish setup →</button></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="app" id="app" aria-label="s.space first room">
+        <aside class="side">
+          <div class="lockup"><svg viewBox="0 0 48 49" aria-hidden="true"><path fill="#1C1C1C" d="M42.6166 4.35195C34.4861 -3.30661 19.4915 -0.592517 9.13058 10.4135C-1.23425 21.4155 -3.04367 36.5439 5.08692 44.2024C13.2175 51.861 28.2121 49.1469 38.573 38.1409C48.9378 27.1388 50.7472 12.0105 42.6166 4.35195ZM32.4485 22.4815C35.1941 25.0698 33.0936 31.7607 27.7558 37.4289C22.418 43.0971 15.8648 45.5949 13.1152 43.0106C10.3696 40.4223 12.4701 33.7314 17.8079 28.0632C18.1344 27.717 18.4609 27.3867 18.7952 27.0641C17.3477 27.19 16.1205 26.8792 15.2629 26.0689C12.5173 23.4807 14.6178 16.7897 19.9556 11.1215C25.2934 5.45332 31.8467 2.95551 34.5962 5.53984C37.3418 8.12809 35.2413 14.819 29.9035 20.4872C29.577 20.8334 29.2505 21.1638 28.9162 21.4863C30.3637 21.3605 31.591 21.6712 32.4485 22.4815Z"/></svg><span style="font:700 15px var(--ui);letter-spacing:-.01em">S.SPACE</span></div>
+          <div class="navlab">YOUR AGENTS</div>
+          <div class="nav on"><span class="mini" id="navAgent"></span>Matt's Sutando <span class="tag" style="font-size:9px">AGENT</span></div>
+          <div class="navlab">ROOMS</div>
+          <div class="nav"><span class="hash">#</span>Invoke · General</div>
+          <div class="nav"><span class="hash">#</span>Community Support</div>
+          <div class="me"><span class="mini" style="background:radial-gradient(closest-side,#ADDBFF 60%,#4A5FD0);width:28px;height:15px"></span>Matt Morgan</div>
+        </aside>
+        <main class="room">
+          <div class="roomhead"><span class="mini" style="width:28px;height:15px"></span>Matt's Sutando <span class="tag">AGENT</span></div>
+          <div class="thread">
+            <div class="msg"><span class="mini"></span><div>
+              <div class="who">Matt's Sutando <span class="tag" style="font-size:9px">AGENT</span><time>9:02 AM</time></div>
+              <p>Hi Matt, I'm all set up. I'll ask before I look at your screen or use other apps, and I keep working while you're away. Want to start with one of these?</p>
+              <div class="chips"><button class="chip">Summarise my inbox</button><button class="chip">Plan my week</button><button class="chip">Draft an s.space intro post</button></div>
+            </div></div>
+          </div>
+          <div class="composer"><span>Message Matt's Sutando…</span><span class="send"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <p><b>True-shape collisions</b>Every orb shares the same tilt, so contact is tested against the real ellipse, not a circle. Glancing hits along the long edge slide past; nose-to-nose hits connect.</p>
+    <p><b>Merge · Bounce · Absorb</b>Merge fuses two orbs into a new colour and bursts anything too big. Bounce deflects off the curve of the shape. Absorb lets the bigger orb drink the smaller one and shift colour as it does.</p>
+    <p><b>Your agent's colour</b>On Meet, a picked colour fires from its swatch into your Sutando, and about half of new orbs take that colour.</p>
+    <p><b>Launch</b>Finish setup pulls the card into the button as its edges dissolve, leaving a soft light in your agent's colour right where you pressed. The other orbs drift in and dissolve into it, it swells toward you, and settles into your Sutando in the first room.</p>
+    <p class="count" id="count">orbs: 0 · collisions: 0</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const PAL = {
+    ember:  {c:[249,163,88],  r:[242,102,30]},
+    pink:   {c:[248,206,254], r:[229,138,240]},
+    sky:    {c:[173,219,255], r:[74,95,208]},
+    mint:   {c:[160,226,191], r:[46,143,94]},
+    lemon:  {c:[240,227,69],  r:[141,191,58]},
+    lilac:  {c:[242,212,255], r:[154,166,255]},
+    forest: {c:[10,138,68],   r:[4,90,44]},
+    cream:  {c:[244,246,186], r:[201,161,74]},
+  };
+  const NAMES = Object.keys(PAL);
+  const W = 1200, H = 800, TILT = -46.7*Math.PI/180, RATIO = 0.5, MAXR = 250;
+  const COS = Math.cos(TILT), SIN = Math.sin(TILT);
+  const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  const win = document.getElementById('win'), app = document.getElementById('app');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let agent = 'ember', agentChosen = false, paused = reduce, hits = 0, last = performance.now(), spawnT = 0;
+  let mode = 'aura', col = 'absorb', spd = 1, phase = 'play', phaseT = 0, lastW = 0, orbs = [];
+  const rnd = (a,b) => a + Math.random()*(b-a);
+  const lerp = (a,b,t) => a + (b-a)*t;
+  const mix = (a,b,t) => a.map((v,i)=>lerp(v,b[i],t));
+  const css = (a,al=1) => `rgba(${a.map(v=>Math.round(v)).join(',')},${al})`;
+  const ease = t => t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  function pickName(exclude=[]) {
+    if (agentChosen && Math.random() < 0.5 && !exclude.includes(agent)) return agent;
+    const pool = NAMES.filter(n => !exclude.includes(n));
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+  function make(x,y,vx,vy,r,name,from) {
+    const p = PAL[name];
+    return {x,y,vx,vy,r,rd:from?from.rd:r,name,c0:from?from.c:p.c.slice(),r0:from?from.rr:p.r.slice(),
+      c:p.c.slice(),rr:p.r.slice(),ct:from?0:1,age:0,wob:from?1:0,glow:0};
+  }
+  function cur(o){ const t=ease(o.ct); return {c:mix(o.c0,o.c,t), r:mix(o.r0,o.rr,t)}; }
+  function recolor(o,name){ const c=cur(o); o.c0=c.c; o.r0=c.r; o.c=PAL[name].c.slice(); o.rr=PAL[name].r.slice(); o.ct=0; o.name=name; }
+  function spawn() {
+    const side = Math.floor(Math.random()*4), r = rnd(50,130), sp = rnd(1.6,3.2);
+    let x,y;
+    if (side===0){x=-r;y=rnd(80,H-80);} else if(side===1){x=W+r;y=rnd(80,H-80);} else if(side===2){x=rnd(80,W-80);y=-r;} else {x=rnd(80,W-80);y=H+r;}
+    const tx = rnd(W*0.25,W*0.75), ty = rnd(H*0.25,H*0.75), d = Math.hypot(tx-x,ty-y);
+    orbs.push(make(x,y,(tx-x)/d*sp,(ty-y)/d*sp,r,pickName()));
+  }
+  function seed(){ orbs=[]; for (let i=0;i<6;i++){ const o = make(rnd(150,W-150),rnd(120,H-120),rnd(-1,1),rnd(-1,1),rnd(60,150),pickName()); o.age=2; orbs.push(o);} }
+  seed();
+  // local frame of the shared tilt: u along the long axis, v across it
+  const toLocal = (dx,dy) => [dx*COS+dy*SIN, -dx*SIN+dy*COS];
+  const toWorld = (u,v) => [u*COS - v*SIN, u*SIN + v*COS];
+  function overlap(a,b){ // Minkowski sum of two aligned ellipses is an ellipse with summed axes
+    const R = (a.rd+b.rd)*0.92, [u,v] = toLocal(b.x-a.x,b.y-a.y);
+    const q = (u*u)/(R*R) + (v*v)/(R*R*RATIO*RATIO);
+    return {q,u,v,R};
+  }
+  function burst(x,y,vx,vy,R,from){
+    for (let k=0;k<3;k++){ const ang=k*2.1+rnd(-.3,.3), s=rnd(2.2,3.4);
+      const o=make(x,y,Math.cos(ang)*s+vx,Math.sin(ang)*s+vy,R*0.42,pickName(),{rd:R*0.5,c:from.c,rr:from.rr}); orbs.push(o); }
+  }
+  function mergePair(i,j,cap){
+    const a=orbs[i], b=orbs[j]; const ma=a.r*a.r, mb=b.r*b.r, m=ma+mb;
+    let R=Math.sqrt(m); const nx=(a.x*ma+b.x*mb)/m, ny=(a.y*ma+b.y*mb)/m, nvx=(a.vx*ma+b.vx*mb)/m, nvy=(a.vy*ma+b.vy*mb)/m;
+    const ca=cur(a), cb=cur(b); const from={rd:Math.max(a.rd,b.rd), c:mix(ca.c,cb.c,mb/m), rr:mix(ca.r,cb.r,mb/m)};
+    orbs.splice(j,1); orbs.splice(i,1); hits++;
+    if (cap) { const hero=a.hero||b.hero, fth=Math.max(a.feather||0,b.feather||0); R=Math.min(R,cap); const o=make(hero?(a.hero?a.x:b.x):nx,hero?(a.hero?a.y:b.y):ny,hero?0:nvx,hero?0:nvy,R,phase==='play'?pickName([a.name,b.name]):agent,from); if(hero){o.hero=true; o.feather=fth; o.r=Math.max(o.r,140); o.rd=Math.max(a.rd,b.rd); o.ct=.6;} o.age=0; o.glow=Math.max(a.glow,b.glow); orbs.push(o); return o; }
+    if (R>MAXR) burst(nx,ny,nvx,nvy,R,from);
+    else { const o=make(nx,ny,nvx,nvy,R,pickName([a.name,b.name]),from); orbs.push(o); }
+  }
+  function collide(dt){
+    for (let i=0;i<orbs.length;i++) for (let j=i+1;j<orbs.length;j++){
+      const a=orbs[i], b=orbs[j]; if (a.age<0.8 || b.age<0.8) continue;
+      const {q,u,v,R} = overlap(a,b); if (q>=1) continue;
+      if (phase!=='play' || col==='merge'){ mergePair(i,j, phase!=='play'?230:0); return; }
+      if (col==='bounce'){
+        // normal of the summed ellipse at the contact direction, back in world space
+        let [nx,ny] = toWorld(u/(R*R), v/(R*R*RATIO*RATIO)); const nl=Math.hypot(nx,ny)||1; nx/=nl; ny/=nl;
+        const ma=a.r*a.r, mb=b.r*b.r, rv=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;
+        if (rv<0){ const jimp=-(1.9)*rv/(1/ma+1/mb); a.vx-=jimp/ma*nx; a.vy-=jimp/ma*ny; b.vx+=jimp/mb*nx; b.vy+=jimp/mb*ny; a.wob=Math.max(a.wob,.5); b.wob=Math.max(b.wob,.5); hits++; }
+        const push=(1-Math.sqrt(q))*R*0.5; a.x-=nx*push; a.y-=ny*push; b.x+=nx*push; b.y+=ny*push;
+      } else { // absorb
+        const big = a.r>=b.r?a:b, small = big===a?b:a;
+        const da = Math.min(small.r*small.r, 14000*dt*spd);
+        small.r = Math.sqrt(Math.max(0,small.r*small.r-da)); small.rd = Math.min(small.rd, small.r+6);
+        big.r = Math.sqrt(big.r*big.r+da);
+        const cs=cur(small), cbg=cur(big), k=Math.min(.08, da/(big.r*big.r));
+        big.c0=mix(cbg.c,cs.c,k*3); big.r0=mix(cbg.r,cs.r,k*3); big.c=mix(big.c,cs.c,k*3); big.rr=mix(big.rr,cs.r,k*3);
+        small.x+=(big.x-small.x)*0.05; small.y+=(big.y-small.y)*0.05;
+        if (small.r<10){ orbs.splice(orbs.indexOf(small),1); hits++; big.wob=1; recolor(big,pickName([big.name]));
+          if (big.r>MAXR){ const c=cur(big); orbs.splice(orbs.indexOf(big),1); burst(big.x,big.y,big.vx,big.vy,big.r,{c:c.c,rr:c.r}); }
+          return; }
+      }
+    }
+  }
+  function step(dt){
+    phaseT += dt; const s = spd;
+    if (phase==='play'){ spawnT += dt*s; if (spawnT>1.1 && orbs.length < (s>1?12:9)) { spawnT=0; spawn(); } }
+    const cx=W/2, cy=H/2;
+    for (const o of orbs){
+      o.age += dt;
+      if (phase==='gather'){
+        const h = orbs.find(q=>q.hero);
+        if (o.hero){ o.vx=o.vy=0; o.r=Math.min(240,o.r); }
+        else if (h){ // drift in on a smooth spiral and dissolve into the light
+          const dx=h.x-o.x, dy=h.y-o.y, d=Math.hypot(dx,dy)||1;
+          o.vx = o.vx*0.9 + (dx/d*0.9 - dy/d*0.35)*dt*60*0.25; o.vy = o.vy*0.9 + (dy/d*0.9 + dx/d*0.35)*dt*60*0.25;
+          o.feather = Math.min(1,(o.feather||0)+dt*2);
+          const fade = d < h.rd*0.9 ? 6 : 1.6;
+          const da = o.r*o.r*(1-Math.exp(-dt*fade)); o.r=Math.sqrt(Math.max(0,o.r*o.r-da)); h.r=Math.min(240,Math.sqrt(h.r*h.r+da*0.35));
+        }
+      }
+      const m = phase==='play' ? s : 1;
+      o.x += o.vx*dt*60*m; o.y += o.vy*dt*60*m;
+      if (phase==='play'){ o.vx*=0.999; o.vy*=0.999; }
+      o.rd = lerp(o.rd, o.r, 1-Math.exp(-dt*5));
+      if (o.ct<1) o.ct=Math.min(1,o.ct+dt*(phase==='play'?1.4:4));
+      if (o.wob>0) o.wob=Math.max(0,o.wob-dt*1.1);
+    }
+    if (phase==='play') collide(dt);
+    if (phase==='play') orbs = orbs.filter(o => o.x>-400 && o.x<W+400 && o.y>-400 && o.y<H+400);
+    if (phase==='gather'){
+      orbs = orbs.filter(o => o.hero || o.r>4);
+      const h = orbs.find(q=>q.hero);
+      // the light keeps swelling in place the whole time, so there is no stop before the push
+      if (h){ h.r += h.r*dt*0.35; if (phaseT>0.85){ phase='zoom'; phaseT=0; win.classList.add('zoom'); } }
+    } else if (phase==='zoom'){ // grows from where it is, toward the viewer, speeding up
+      const h = orbs.find(q=>q.hero); for (const o of orbs) if (!o.hero) o.r*=Math.exp(-dt*8);
+      h.r += h.r*dt*(0.6+phaseT*9); h.rd=h.r;
+      if (h.r>1000 && phase==='zoom'){ phase='done'; land(h.x,h.y); later(()=>{ orbs=[]; win.classList.add('landed'); },160); }
+    }
+  }
+  function draw(){
+    ctx.globalCompositeOperation='source-over';
+    ctx.fillStyle = mode==='aura' && phase==='play' ? '#FAFAFA' : '#F3F3F3'; ctx.fillRect(0,0,W,H);
+    const multiply = mode==='crisp' && phase==='play';
+    ctx.globalCompositeOperation = multiply ? 'multiply' : 'source-over';
+    for (const o of orbs){
+      const c=cur(o), k = mode==='aura' && phase==='play' ? 1.35 : 1, w=o.rd*k, h=o.rd*RATIO*k;
+      const wob = o.wob>0 ? Math.sin((1-o.wob)*20)*0.16*o.wob : 0;
+      // squash the space so the gradient follows the oval all the way round
+      ctx.save(); ctx.translate(o.x,o.y); ctx.rotate(TILT); ctx.scale(1+wob,(1-wob)*RATIO);
+      const fe=o.feather||0;
+      if (o.glow>0 && fe<0.5){ ctx.shadowColor=css(c.c,.9*(1-fe*2)); ctx.shadowBlur=Math.min(120,40*o.glow); }
+      const g=ctx.createRadialGradient(0,0,0,0,0,w);
+      if (fe>0){ // light, not a shape: colour at the heart falling away to nothing
+        g.addColorStop(0,css(c.c)); g.addColorStop(lerp(.62,.18,fe),css(c.c,lerp(1,.95,fe)));
+        g.addColorStop(lerp(.85,.55,fe),css(mix(c.r,c.c,fe*.7),lerp(1,.42,fe))); g.addColorStop(1,css(c.c,lerp(1,0,fe)));
+      } else { g.addColorStop(0,css(c.c)); g.addColorStop(.62,css(c.c)); g.addColorStop(1,css(c.r)); }
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,w,0,Math.PI*2); ctx.fill();
+      if (o.glow>1){ ctx.shadowBlur=Math.min(120,90*(o.glow-1)); ctx.globalAlpha=Math.min(1,(o.glow-1)); ctx.fill(); ctx.globalAlpha=1; }
+      ctx.restore();
+    }
+  }
+  const countEl = document.getElementById('count');
+  function loop(now){
+    const dt=Math.min(0.05,(now-last)/1000); last=now;
+    if (!paused || phase!=='play') step(dt);
+    if (phase!=='done') draw();
+    countEl.textContent = `orbs: ${orbs.length} · collisions: ${hits}`;
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // fit window to stage
+  const stage = document.getElementById('stage');
+  const fit = () => { win.style.transform = `scale(${stage.clientWidth/1200})`; };
+  new ResizeObserver(fit).observe(stage); fit();
+
+  // screens + animated progress
+  const screens = ['welcome','meet','perms']; let current='welcome'; const timers=new Set();
+  const later=(fn,ms)=>{ const t=setTimeout(()=>{timers.delete(t);fn();},ms); timers.add(t); };
+  function show(name, instant){
+    if (name==='finale') return finale();
+    if (name===current && !instant) return;
+    const dir = screens.indexOf(name) >= screens.indexOf(current) ? 'fwd' : 'back';
+    const out = document.getElementById('screen-'+current), inn = document.getElementById('screen-'+name);
+    for (const s of screens){ const el=document.getElementById('screen-'+s); el.classList.remove('enter-fwd','enter-back','exit-fwd','exit-back'); if (s!==name && s!==current) el.hidden=true; }
+    if (out!==inn && !instant){ out.classList.add('exit-'+dir); later(()=>{ out.hidden=true; out.classList.remove('exit-'+dir); }, 380); } else if (out!==inn) out.hidden=true;
+    inn.hidden=false; inn.classList.add('enter-'+dir);
+    current=name;
+    document.querySelectorAll('[data-screen]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.screen===name)));
+    const bar = inn.querySelector('.progress i');
+    if (bar){ const target=+bar.dataset.w; bar.style.transition='none'; bar.style.width=lastW+'%'; void bar.offsetWidth; bar.style.transition=''; later(()=>{ bar.style.width=target+'%'; }, 180); lastW=target; }
+    else lastW=0;
+  }
+  // Finish: the pressed button's gradient floods the card, the card folds into the orb, the orb carries on
+  function finale(){
+    const scr = document.getElementById('screen-perms'), card = scr.querySelector('.card'), bar=scr.querySelector('.progress i');
+    bar.style.width='100%';
+    const s0=stage.clientWidth/1200, wr=win.getBoundingClientRect(), fb=document.getElementById('finishBtn').getBoundingClientRect();
+    // the light is born where you pressed, nudged a little inward so it has room to grow
+    const hx=lerp((fb.left+fb.width/2-wr.left)/s0, W/2, .25), hy=lerp((fb.top+fb.height/2-wr.top)/s0, H/2, .25);
+    const handoff = () => {
+      scr.hidden=true; card.classList.remove('morphing'); card.querySelectorAll('.morph').forEach(m=>m.remove()); card.getAnimations({subtree:true}).forEach(a=>a.cancel());
+      const o=make(hx,hy,0,0,140,agent); o.rd=140; o.hero=true; o.age=0; o.glow=0; o.feather=1; orbs.push(o);
+      phase='gather'; phaseT=0; win.classList.add('focus');
+    };
+    if (reduce) return handoff();
+    // the card is pulled into the button, its edges dissolving, and what's left becomes the Sutando
+    const s=stage.clientWidth/1200, cr=card.getBoundingClientRect(), br=document.getElementById('finishBtn').getBoundingClientRect();
+    const cw=cr.width/s, ch=cr.height/s;
+    const ccx=(cr.left+cr.width/2-wr.left)/s, ccy=(cr.top+cr.height/2-wr.top)/s;
+    const dx=hx-ccx, dy=hy-ccy;
+    const p=PAL[agent];
+    card.classList.add('morphing');
+    // static feathered masks only (animated masks don't run in Safari); the dissolve comes from opacity, radius and blur
+    const feather='radial-gradient(closest-side, #000 35%, rgba(0,0,0,.6) 70%, transparent 100%)';
+    const flood=document.createElement('div'); flood.className='morph'; flood.style.background='linear-gradient(120deg,#ADDBFF,#F8CEFE 50%,#F9A358)'; flood.style.opacity='0';
+    flood.style.webkitMaskImage=flood.style.maskImage='radial-gradient(farthest-corner, #000 55%, transparent 100%)';
+    const body=document.createElement('div'); body.className='morph'; body.style.opacity='0';
+    // same falloff as the canvas light, so the hand-off is invisible
+    body.style.background=`radial-gradient(closest-side, ${css(p.c)} 0%, ${css(p.c,.95)} 18%, ${css(mix(p.r,p.c,.7),.42)} 55%, ${css(p.c,0)} 100%)`;
+    body.style.webkitMaskImage=body.style.maskImage=feather;
+    card.append(flood, body);
+    const T=720;
+    // the card's own content and white fade out under the colour
+    [...card.children].filter(c=>!c.classList.contains('morph')).forEach(c=>c.animate([{opacity:1},{opacity:0,offset:.3},{opacity:0}],{duration:T,fill:'forwards'}));
+    flood.animate([{opacity:0},{opacity:1,offset:.28},{opacity:1,offset:.45},{opacity:0}],{duration:T,easing:'ease-in-out',fill:'forwards'});
+    body.animate([{opacity:0},{opacity:0,offset:.3},{opacity:1}],{duration:T,easing:'ease-in-out',fill:'forwards'});
+    // one continuous glide: shrink toward the button while the edges dissolve, then settle into the tilted oval of light
+    card.animate([
+      {transform:'none', borderRadius:'32px', backgroundColor:'rgba(255,255,255,1)', boxShadow:'0 24px 64px rgba(102,51,13,.10)', filter:'blur(0px)'},
+      {borderRadius:'60px', backgroundColor:'rgba(255,255,255,1)', boxShadow:'0 24px 64px rgba(102,51,13,.06)', offset:.22, filter:'blur(2px)'},
+      {transform:`translate(${dx*.75}px,${dy*.75}px) scale(.42)`, borderRadius:'50%', backgroundColor:'rgba(255,255,255,0)', boxShadow:'0 0 0 rgba(0,0,0,0)', offset:.55, filter:'blur(10px)'},
+      {transform:`translate(${dx}px,${dy}px) rotate(-46.7deg) scale(${280/cw},${140/ch})`, borderRadius:'50%', backgroundColor:'rgba(255,255,255,0)', boxShadow:'0 0 0 rgba(0,0,0,0)', filter:'blur(18px)'}
+    ],{duration:T,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'}).onfinish=handoff;
+  }
+  // full-window colour contracts into the sidebar Sutando as the app appears
+  function land(sx=W/2, sy=H/2){
+    app.classList.add('in');
+    const icon=document.getElementById('navAgent');
+    if (reduce){ return; }
+    const [x1,y1]=winPoint(icon);
+    // one soft-edged body of colour that the room fades in behind, drawn down into the icon
+    const c=PAL[agent];
+    const f=document.createElement('i'); f.className='fly'; f.style.boxShadow='none';
+    f.style.background=`radial-gradient(closest-side, ${css(c.c)} 0%, ${css(c.c,.95)} 18%, ${css(mix(c.r,c.c,.7),.42)} 55%, ${css(c.c,0)} 100%)`;
+    win.appendChild(f);
+    const rot='rotate(-46.7deg)';
+    const a=f.animate([
+      {transform:`translate(${sx-17}px,${sy-9}px) ${rot} scale(60)`, opacity:1},
+      {transform:`translate(${x1-17}px,${y1-9}px) ${rot} scale(1.3)`, opacity:.9, offset:.9},
+      {transform:`translate(${x1-17}px,${y1-9}px) ${rot} scale(1)`, opacity:0}
+    ],{duration:680,easing:'cubic-bezier(.5,0,.15,1)'});
+    later(()=>{ icon.classList.remove('hit'); void icon.offsetWidth; icon.classList.add('hit'); }, 560);
+    a.onfinish=()=>f.remove();
+  }
+  function reset(){
+    timers.forEach(clearTimeout); timers.clear();
+    const pc=document.querySelector('#screen-perms .card'); pc.classList.remove('morphing'); pc.querySelectorAll('.morph').forEach(m=>m.remove()); pc.getAnimations({subtree:true}).forEach(a=>a.cancel());
+    document.getElementById('finishBtn').classList.remove('pour');
+    phase='play'; phaseT=0; hits=0; app.classList.remove('in'); win.classList.remove('focus','landed','zoom'); seed(); lastW=0; current='welcome'; show('welcome',true);
+  }
+  document.querySelectorAll('[data-screen]').forEach(b=>b.addEventListener('click',()=>{ if(phase!=='play') reset(); show(b.dataset.screen); }));
+  // key buttons: the gradient pours in on press, then we move on
+  document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{
+    if (b.dataset.go==='finale'){ document.getElementById('finishBtn').classList.add('pour'); later(()=>finale(),140); later(()=>document.getElementById('finishBtn').classList.remove('pour'),1400); }
+    else if (b.classList.contains('key') && !reduce){ b.classList.add('pour'); later(()=>{ show(b.dataset.go); later(()=>b.classList.remove('pour'),400); }, 300); }
+    else show(b.dataset.go);
+  }));
+  document.getElementById('replay').addEventListener('click',reset);
+  const group = (attr, fn) => document.querySelectorAll(`[data-${attr}]`).forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll(`[data-${attr}]`).forEach(x=>x.setAttribute('aria-pressed',String(x===b))); fn(b.dataset[attr]); }));
+  group('mode', v=>{ mode=v; win.classList.toggle('aura', v==='aura'); });
+  group('col', v=>{ col=v; });
+  group('spd', v=>{ spd=+v; });
+  const pauseBtn=document.getElementById('pause');
+  const setPause=p=>{ paused=p; pauseBtn.textContent=p?'Play':'Pause'; pauseBtn.setAttribute('aria-pressed',String(p)); };
+  setPause(paused); pauseBtn.addEventListener('click',()=>setPause(!paused));
+
+  // agent colour: swatch fires an orb into the Sutando
+  const sw=document.getElementById('swatches'), avatar=document.getElementById('avatar'), root=document.documentElement;
+  const choices=['ember','pink','sky','mint','lemon','lilac'];
+  const hex = a => '#'+a.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
+  const grad = n => `radial-gradient(closest-side, ${hex(PAL[n].c)} 60%, ${hex(PAL[n].r)})`;
+  function winPoint(el){ const s=stage.clientWidth/1200, wr=win.getBoundingClientRect(), r=el.getBoundingClientRect(); return [(r.left+r.width/2-wr.left)/s, (r.top+r.height/2-wr.top)/s]; }
+  function setAgent(n, btn){
+    sw.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.c===n)));
+    const apply=()=>{ agent=n; agentChosen=true; root.style.setProperty('--agent-c',hex(PAL[n].c)); root.style.setProperty('--agent-r',hex(PAL[n].r)); spawnT=2; spawn(); spawn(); };
+    if (reduce) return apply();
+    const [x0,y0]=winPoint(btn), [x1,y1]=winPoint(avatar);
+    const f=document.createElement('i'); f.className='fly'; f.style.background=grad(n); f.style.setProperty('--glow', css(PAL[n].c,.7)); win.appendChild(f);
+    const ang=Math.atan2(y1-y0,x1-x0)*180/Math.PI;
+    // a straight, accelerating shot into the centre of the Sutando, stretched along its path
+    const a=f.animate([
+      {transform:`translate(${x0-17}px,${y0-9}px) rotate(${ang}deg) scale(.7,.7)`},
+      {transform:`translate(${x1-17}px,${y1-9}px) rotate(${ang}deg) scale(1.5,.55)`}
+    ],{duration:230,easing:'cubic-bezier(.6,0,.9,.5)'});
+    a.onfinish=()=>{ f.remove();
+      // new colour blooms out from the centre, then becomes the Sutando
+      const s=document.createElement('span'); s.className='splash'; s.style.background=grad(n); s.style.boxShadow=`0 0 24px 6px ${css(PAL[n].c,.6)}`; avatar.appendChild(s);
+      const b=s.animate([{transform:'rotate(-46.7deg) scale(.05)',opacity:1},{transform:'rotate(-46.7deg) scale(1.22)',opacity:1,offset:.6},{transform:'rotate(-46.7deg) scale(1)',opacity:1}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1.2)'});
+      b.onfinish=()=>{ apply(); s.animate([{opacity:1},{opacity:0}],{duration:160}).onfinish=()=>s.remove(); };
+    };
+  }
+  choices.forEach(n=>{ const b=document.createElement('button'); b.className='sw'; b.id='sw-'+n; b.dataset.c=n; b.setAttribute('aria-label',n+' agent colour'); b.style.background=grad(n); b.addEventListener('click',()=>setAgent(n,b)); sw.appendChild(b); });
+  sw.querySelector('[data-c="ember"]').setAttribute('aria-pressed','true');
+})();
+</script>
+
+</body>
+</html>
