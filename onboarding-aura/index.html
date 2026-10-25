@@ -309,11 +309,12 @@ canvas{position:absolute;inset:0;width:1200px;height:800px;transition:filter 1.2
     cream:  {c:[244,246,186], r:[201,161,74]},
   };
   const NAMES = Object.keys(PAL);
-  const W = 1200, H = 800, TILT = -46.7*Math.PI/180, RATIO = 0.5, MAXR = 250;
+  const W = 1200, H = 800, TILT = -46.7*Math.PI/180, RATIO = 0.5, MAXR = 300, MAXN = 3; // 2–3 orbs in the field at a time
   const COS = Math.cos(TILT), SIN = Math.sin(TILT);
   const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
   const win = document.getElementById('win'), app = document.getElementById('app');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let target = 3, tgtT = 0;
   let agent = 'ember', agentChosen = false, paused = reduce, hits = 0, last = performance.now(), spawnT = 0;
   let mode = 'aura', col = 'absorb', spd = 1, phase = 'play', phaseT = 0, lastW = 0, orbs = [];
   const rnd = (a,b) => a + Math.random()*(b-a);
@@ -321,9 +322,16 @@ canvas{position:absolute;inset:0;width:1200px;height:800px;transition:filter 1.2
   const mix = (a,b,t) => a.map((v,i)=>lerp(v,b[i],t));
   const css = (a,al=1) => `rgba(${a.map(v=>Math.round(v)).join(',')},${al})`;
   const ease = t => t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  // few orbs, so keep them distinct: no colour twice in the field, never two oranges together,
+  // and the agent colour is one orb at a time (an accent, not a takeover)
+  const WARM = ['ember','peach'];
   function pickName(exclude=[]) {
-    if (agentChosen && Math.random() < 0.5 && !exclude.includes(agent)) return agent;
-    const pool = NAMES.filter(n => !exclude.includes(n));
+    const live = (typeof orbs!=='undefined' ? orbs : []).filter(o=>!o.leaving).map(o=>o.name);
+    const taken = new Set([...exclude, ...live]);
+    if (agentChosen && !taken.has(agent) && Math.random() < 0.7) return agent;
+    let pool = NAMES.filter(n => !taken.has(n) && n!==agent);
+    if (live.some(n=>WARM.includes(n)) || (agentChosen && WARM.includes(agent))) pool = pool.filter(n=>!WARM.includes(n));
+    if (!pool.length) pool = NAMES.filter(n => !exclude.includes(n) && n!==agent);
     return pool[Math.floor(Math.random()*pool.length)];
   }
   function make(x,y,vx,vy,r,name,from) {
@@ -334,13 +342,13 @@ canvas{position:absolute;inset:0;width:1200px;height:800px;transition:filter 1.2
   function cur(o){ const t=ease(o.ct); return {c:mix(o.c0,o.c,t), r:mix(o.r0,o.rr,t)}; }
   function recolor(o,name){ const c=cur(o); o.c0=c.c; o.r0=c.r; o.c=PAL[name].c.slice(); o.rr=PAL[name].r.slice(); o.ct=0; o.name=name; }
   function spawn() {
-    const side = Math.floor(Math.random()*4), r = rnd(50,130), sp = rnd(1.6,3.2);
+    const side = Math.floor(Math.random()*4), r = rnd(120,180), sp = rnd(0.9,1.7);
     let x,y;
     if (side===0){x=-r;y=rnd(80,H-80);} else if(side===1){x=W+r;y=rnd(80,H-80);} else if(side===2){x=rnd(80,W-80);y=-r;} else {x=rnd(80,W-80);y=H+r;}
     const tx = rnd(W*0.25,W*0.75), ty = rnd(H*0.25,H*0.75), d = Math.hypot(tx-x,ty-y);
     orbs.push(make(x,y,(tx-x)/d*sp,(ty-y)/d*sp,r,pickName()));
   }
-  function seed(){ orbs=[]; for (let i=0;i<6;i++){ const o = make(rnd(150,W-150),rnd(120,H-120),rnd(-1,1),rnd(-1,1),rnd(60,150),pickName()); o.age=2; orbs.push(o);} }
+  function seed(){ orbs=[]; const spots=[[.2,.25],[.82,.78],[.85,.2]]; spots.forEach(([px,py],i)=>{ const o = make(W*px+rnd(-60,60),H*py+rnd(-50,50),rnd(-.6,.6),rnd(-.6,.6),rnd(150,210),pickName(orbs.map(q=>q.name))); o.age=2; orbs.push(o); }); }
   seed();
   // local frame of the shared tilt: u along the long axis, v across it
   const toLocal = (dx,dy) => [dx*COS+dy*SIN, -dx*SIN+dy*COS];
@@ -351,7 +359,7 @@ canvas{position:absolute;inset:0;width:1200px;height:800px;transition:filter 1.2
     return {q,u,v,R};
   }
   function burst(x,y,vx,vy,R,from){
-    for (let k=0;k<3;k++){ const ang=k*2.1+rnd(-.3,.3), s=rnd(2.2,3.4);
+    for (let k=0;k<2;k++){ const ang=k*Math.PI+rnd(-.4,.4), s=rnd(1.4,2.2);
       const o=make(x,y,Math.cos(ang)*s+vx,Math.sin(ang)*s+vy,R*0.42,pickName(),{rd:R*0.5,c:from.c,rr:from.rr}); orbs.push(o); }
   }
   function mergePair(i,j,cap){
@@ -390,7 +398,10 @@ canvas{position:absolute;inset:0;width:1200px;height:800px;transition:filter 1.2
   }
   function step(dt){
     phaseT += dt; const s = spd;
-    if (phase==='play'){ spawnT += dt*s; if (spawnT>1.1 && orbs.length < (s>1?12:9)) { spawnT=0; spawn(); } }
+    if (phase==='play'){ spawnT += dt*s; tgtT += dt*s; if (tgtT>(target===3?8:11)){ tgtT=0; target = target===3?2:3; // breathe between 3 and 2: the oldest drifts out, a new one comes in later
+        if (target===2){ const l=orbs.filter(o=>!o.hero&&!o.leaving).sort((a,b)=>b.age-a.age)[0]; if(l && orbs.length>2){ l.leaving=true; const d=Math.hypot(l.x-W/2,l.y-H/2)||1; l.lx=(l.x-W/2)/d; l.ly=(l.y-H/2)/d; } } }
+      const live = orbs.filter(o=>!o.leaving).length;
+      if (spawnT>2.4 && live < target) { spawnT=0; spawn(); } }
     const cx=W/2, cy=H/2;
     for (const o of orbs){
       o.age += dt;
@@ -407,13 +418,17 @@ canvas{position:absolute;inset:0;width:1200px;height:800px;transition:filter 1.2
       }
       const m = phase==='play' ? s : 1;
       o.x += o.vx*dt*60*m; o.y += o.vy*dt*60*m;
-      if (phase==='play'){ o.vx*=0.999; o.vy*=0.999; }
+      if (phase==='play'){ o.vx*=0.999; o.vy*=0.999; const k=0.03*dt*60; // soft walls keep the few orbs spread across the frame; a leaving orb eases out instead
+        if (o.leaving){ o.vx+=o.lx*0.03*dt*60; o.vy+=o.ly*0.03*dt*60; }
+        else if (o.age>3){ if(o.x<W*0.08) o.vx+=k; if(o.x>W*0.92) o.vx-=k; if(o.y<H*0.1) o.vy+=k; if(o.y>H*0.9) o.vy-=k;
+          for (const q of orbs){ if(q===o||q.leaving) continue; const dx=o.x-q.x, dy=o.y-q.y, d=Math.hypot(dx,dy)||1; if(d<420){ o.vx+=dx/d*0.006*dt*60; o.vy+=dy/d*0.006*dt*60; } } }
+        const sp=Math.hypot(o.vx,o.vy), cap=o.leaving?4:2.2; if(sp>cap){ o.vx*=cap/sp; o.vy*=cap/sp; } }
       o.rd = lerp(o.rd, o.r, 1-Math.exp(-dt*5));
       if (o.ct<1) o.ct=Math.min(1,o.ct+dt*(phase==='play'?1.4:4));
       if (o.wob>0) o.wob=Math.max(0,o.wob-dt*1.1);
     }
     if (phase==='play') collide(dt);
-    if (phase==='play') orbs = orbs.filter(o => o.x>-400 && o.x<W+400 && o.y>-400 && o.y<H+400);
+    if (phase==='play') orbs = orbs.filter(o => { const m = o.leaving ? o.rd*1.6 : 400; return o.x>-m && o.x<W+m && o.y>-m && o.y<H+m; });
     if (phase==='gather'){
       orbs = orbs.filter(o => o.hero || o.r>4);
       const h = orbs.find(q=>q.hero);
@@ -572,7 +587,7 @@ canvas{position:absolute;inset:0;width:1200px;height:800px;transition:filter 1.2
   function winPoint(el){ const s=stage.clientWidth/1200, wr=win.getBoundingClientRect(), r=el.getBoundingClientRect(); return [(r.left+r.width/2-wr.left)/s, (r.top+r.height/2-wr.top)/s]; }
   function setAgent(n, btn){
     sw.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.c===n)));
-    const apply=()=>{ agent=n; agentChosen=true; root.style.setProperty('--agent-c',hex(PAL[n].c)); root.style.setProperty('--agent-r',hex(PAL[n].r)); spawnT=2; spawn(); spawn(); };
+    const apply=()=>{ agent=n; agentChosen=true; root.style.setProperty('--agent-c',hex(PAL[n].c)); root.style.setProperty('--agent-r',hex(PAL[n].r)); spawnT=0; const big=orbs.filter(o=>!o.hero&&!o.leaving).sort((a,b)=>b.r-a.r)[0]; if(big) recolor(big,n); if(orbs.filter(o=>!o.leaving).length<target) spawn(); };
     if (reduce) return apply();
     const [x0,y0]=winPoint(btn), [x1,y1]=winPoint(avatar);
     const f=document.createElement('i'); f.className='fly'; f.style.background=grad(n); f.style.setProperty('--glow', css(PAL[n].c,.7)); win.appendChild(f);
