@@ -13,7 +13,7 @@
 :root{
   --page:#ffffff; --canvas:#f4f4f4; --surface:#ffffff; --sunk:#f4f4f4;
   --text:#343231; --text-2:#666360; --quiet:#706d69; --border:#ededec; --line:rgba(107,98,90,.14);
-  --pill:#1b1919; --on-pill:#ffffff; --agent:#666360; --link:#354cac; --dot:#9b5725; --logo:#b7b2ad; --done:#06813d;
+  --pill:#1b1919; --on-pill:#ffffff; --agent:#666360; --link:#354cac; --dot:#c5793c; --warn-ink:#9b5725; --logo:#b7b2ad; --done:#06813d;
   --key-bg:#f4f4f4; --ring:#f9a358; --shine:#d0cdca;
   --g1:#f9a358; --g2:#facefe; --g3:#f6c5b1; --g4:#f0e345;
   --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -23,12 +23,12 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --page:#1b1919; --canvas:#201f1e; --surface:#282624; --sunk:#1b1919;
   --text:#e7e6e5; --text-2:#b7b2ad; --quiet:#a29d99; --border:#343231; --line:rgba(255,255,255,.08);
-  --pill:#f4f4f4; --on-pill:#1b1919; --agent:#b7b2ad; --link:#addcff; --dot:#f9a358; --logo:#5d5a57; --done:#9ee2bf;
+  --pill:#f4f4f4; --on-pill:#1b1919; --agent:#b7b2ad; --link:#addcff; --dot:#f9a358; --warn-ink:#f9a358; --logo:#5d5a57; --done:#9ee2bf;
   --key-bg:#343231; --shine:#ffffff; color-scheme:dark }}
 :root[data-theme="dark"]{
   --page:#1b1919; --canvas:#201f1e; --surface:#282624; --sunk:#1b1919;
   --text:#e7e6e5; --text-2:#b7b2ad; --quiet:#a29d99; --border:#343231; --line:rgba(255,255,255,.08);
-  --pill:#f4f4f4; --on-pill:#1b1919; --agent:#b7b2ad; --link:#addcff; --dot:#f9a358; --logo:#5d5a57; --done:#9ee2bf;
+  --pill:#f4f4f4; --on-pill:#1b1919; --agent:#b7b2ad; --link:#addcff; --dot:#f9a358; --warn-ink:#f9a358; --logo:#5d5a57; --done:#9ee2bf;
   --key-bg:#343231; --shine:#ffffff; color-scheme:dark }
 *{box-sizing:border-box}
 body{margin:0;background:var(--page);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -131,7 +131,7 @@ section{scroll-margin-top:72px}
 .metrics li{display:grid;grid-template-columns:54px minmax(0,1fr);gap:10px;align-items:baseline}
 .metrics b{font:500 12px/1 var(--mono);padding:4px 6px;border-radius:6px;text-align:center}
 .ok{background:var(--sunk);color:var(--done)}
-.warn{background:var(--sunk);color:var(--dot)}
+.warn{background:var(--sunk);color:var(--warn-ink)}
 .bad{background:var(--sunk);color:#c2453d}
 :root[data-theme="dark"] .bad{color:#f19a90}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .bad{color:#f19a90}}
