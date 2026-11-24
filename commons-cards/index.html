@@ -134,7 +134,7 @@ svg{display:block}
 .card{all:unset;box-sizing:border-box;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent}
 .card:focus-visible{outline:2px solid var(--notify);outline-offset:3px;border-radius:14px}
 .card.e{width:360px;max-width:100%;border-radius:14px;background:var(--soft);padding:8px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;transition:background .15s,box-shadow .15s}
-.e .pv{background:#fff;border-radius:10px;padding:13px 14px 12px;display:grid;gap:7px;box-shadow:0 1px 2px rgba(27,25,25,.06);transition:transform .18s,box-shadow .18s}
+.e .pv{background:#fff;border-radius:10px;padding:13px 14px 12px;display:grid;grid-template-columns:minmax(0,1fr);gap:7px;box-shadow:0 1px 2px rgba(27,25,25,.06);transition:transform .18s,box-shadow .18s}
 .e .pv i{display:block;height:5px;border-radius:3px;background:var(--line)}
 .e .pv i.t{height:8px;width:150px;background:var(--full);margin-bottom:4px}
 .e .pv .ck{display:flex;align-items:center;gap:8px;margin-top:4px}
@@ -165,6 +165,40 @@ svg{display:block}
 .card.c2.hov .tile,.card.c2.hov .secs span{background:color-mix(in srgb,var(--full) 60%,transparent)}
 .card.c2.hov{box-shadow:0 6px 16px -8px rgba(27,25,25,.25)}
 .card.c2.viewing{box-shadow:inset 0 0 0 2px var(--tink)}
+
+/* E card extras: presence, updated tag, requested (agent making it) */
+.e .pv{position:relative}
+.e .pres{position:absolute;top:9px;right:9px;display:flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:3px 9px 3px 3px;font-size:11px;font-weight:500;color:var(--text-2);box-shadow:0 1px 3px rgba(27,25,25,.14)}
+.e .pres img{width:18px;height:18px;border-radius:50%}
+.e .pres b{width:6px;height:6px;border-radius:50%;background:#06813d}
+.e .upd,.mini .upd{font-size:11px;font-weight:500;line-height:16px;color:var(--tink);background:var(--full);border-radius:999px;padding:2px 8px}
+.e .upd{position:absolute;top:9px;right:9px}
+.card.e.req{cursor:default}
+.card.e.req .pv{box-shadow:none;outline:1.2px dashed color-mix(in srgb,var(--tink) 40%,transparent);outline-offset:-1px}
+.card.e.req .pv i{background:var(--variant)}.card.e.req .pv i.t{background:color-mix(in srgb,var(--full) 50%,#fff)}
+.card.e.req .prog{height:4px;border-radius:2px;background:var(--variant);overflow:hidden;margin-top:4px}
+.card.e.req .prog span{display:block;height:100%;width:30%;background:var(--full);border-radius:2px;animation:prog 2.6s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes prog{to{width:92%}}
+.card.e.req .go{opacity:.35}
+.sweep{background:linear-gradient(90deg,var(--text-2) 0%,var(--text-2) 40%,#d0cdca 50%,var(--text-2) 60%,var(--text-2) 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent !important;animation:sweep 2.4s linear infinite}
+@keyframes sweep{from{background-position:100% 0}to{background-position:-150% 0}}
+.card.e.arrived{animation:arrive .5s ease-out}
+@keyframes arrive{from{box-shadow:0 0 0 0 color-mix(in srgb,var(--full) 70%,transparent)}to{box-shadow:0 0 0 10px transparent}}
+
+/* ---------- Mini card (one line) ---------- */
+.card.mini{display:inline-grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;column-gap:10px;row-gap:6px;background:var(--soft);border-radius:10px;padding:6px;max-width:min(420px,100%);transition:background .15s,box-shadow .15s}
+.mini .tile{width:28px;height:28px;border-radius:6px;background:color-mix(in srgb,var(--full) 40%,#fff);color:var(--tink);display:grid;place-items:center}
+.mini .tile .ico{width:16px;height:16px}
+.mini .tt{display:block;font-size:13px;font-weight:600;line-height:18px;color:var(--tink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .mm{display:block;font-size:12px;line-height:16px;color:color-mix(in srgb,var(--tink) 85%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .acts{display:flex;align-items:center;gap:6px}
+.mini .go{width:28px;height:28px;border-radius:50%;background:#fff;color:var(--tink);display:grid;place-items:center;transition:background .15s,color .15s}
+.mini .go .ico{width:14px;height:14px}
+.mini .q{grid-column:2 / -1;font-size:12px;line-height:16px;color:var(--tink);border-left:2px solid var(--full);padding-left:8px;margin-bottom:2px}
+.card.mini.hov{background:color-mix(in srgb,var(--soft) 72%,var(--full))}
+.card.mini.hov .go{background:var(--tink);color:var(--soft)}
+.card.mini.viewing{box-shadow:inset 0 0 0 2px var(--tink)}
+.card.mini.viewing .go{background:var(--tink);color:var(--soft)}
 
 /* composer */
 .composer{flex:none;padding:0 24px 12px}
@@ -229,6 +263,7 @@ svg{display:block}
   .row{padding:4px 8px}
   .att{gap:8px}
   .card.e,.card.c2{width:100%}
+  .card.mini{max-width:100%}
   .composer{padding:0 8px 10px}
   .cbox{gap:16px;border-radius:20px}
   .hint{display:none}
@@ -274,6 +309,7 @@ svg{display:block}
     <div class="seg"><span>Card</span><div class="seg-in" data-ctl="style"><button aria-pressed="true" data-v="e">E · Preview</button><button aria-pressed="false" data-v="c2">C2 · Tinted</button></div></div>
     <div class="seg"><span>Peek on hover</span><div class="seg-in" data-ctl="peek"><button aria-pressed="true" data-v="on">On</button><button aria-pressed="false" data-v="off">Off</button></div></div>
     <div class="seg"><span>Motion</span><div class="seg-in" data-ctl="motion"><button aria-pressed="true" data-v="on">On</button><button aria-pressed="false" data-v="still">Reduced</button></div></div>
+    <button class="r-btn" id="replay" type="button">Replay agent reply</button>
     <button class="r-btn" id="reset" type="button">Reset</button>
   </div>
 </div>
@@ -362,6 +398,8 @@ svg{display:block}
       <li><b>Hover a Commons card.</b> The Commons button in the room header turns white and a glow circles inside its edge in that card’s colour (orange for the HTML page, blue for the Doc, green for the Sheet). The tooltip names the page that will open.</li>
       <li><b>Hold the hover.</b> After a moment the panel peeks in from the right edge as a sliver in the same colour. Turn this off with “Peek on hover” to judge the glow on its own.</li>
       <li><b>Click a card.</b> The panel slides in and pushes the chat (it never covers it). The card shows <i>Viewing</i> and the Commons button stays pressed in the page’s tint. Hover a different card while one is open to see the glow on top of the pressed state, then click it to switch pages.</li>
+      <li><b>Press “Replay agent reply”.</b> Matt’s Sutando answers with the cards already in place, marked as being made (dashed preview, grey working line). They fill in when the pages are ready, so there’s one card per page instead of a request card plus a second card.</li>
+      <li><b>Look for the smaller signals.</b> “Adina is here” on the plan (someone is on the page now), “Updated” on the checklist (edited since it was shared, by whom), and one-line mini cards for Igor’s comment and Adina’s shared update. Edits never post on their own.</li>
       <li><b>Switch to Mobile.</b> No hover on touch: tapping a card pushes the page in full screen with Back.</li>
       <li><b>Compare card styles.</b> E · Preview is the current pick; C2 · Tinted (full colour with lighter-tinted sections) is here to compare in context.</li>
     </ul>
@@ -415,22 +453,23 @@ const MSGS = [
   {p:'igor',t:'9:52 AM',m:'On it. PR 9a goes up tonight with the room icons and artwork.',thread:true},
   {p:'qsut',t:'9:53 AM',m:'I read the last three release threads in this room. Two clashes came from manual builds and one from a tag pushed before CI finished. I can turn that into a short checklist so nobody clashes on build numbers again. Want it in Commons?'},
   {p:'qingyun',t:'9:54 AM',m:'Yes please'},
-  {p:'qsut',t:'9:56 AM',m:'Done. Drafted from the release threads in this room.',cards:[{page:'checklist',meta:'Sheet · in Commons · 9:56 AM'}]},
+  {p:'qsut',t:'9:56 AM',m:'Done. Drafted from the release threads in this room.',cards:[{page:'checklist',meta:'Edited 10:04 AM by Matt Morgan',updated:true}]},
   {p:'dominic',t:'10:02 AM',m:'Nice. <span class="at">@Matt Morgan</span> does the checklist cover the ios-v tag, or is that still manual?'},
   {p:'adina',t:'10:03 AM',m:'+1'},
   {p:'matt',t:'10:04 AM',m:'Covered in step 4. I’ll run it on the next build.'},
   {p:'matt',t:'10:05 AM',m:'Here’s the sim recording from this morning too.',file:true},
-  {p:'igor',t:'10:06 AM',m:'Left a note on step 4.',cards:[{page:'checklist',meta:'Sheet · Igor commented on step 4'}]},
+  {p:'igor',t:'10:06 AM',m:'Left a note on step 4.',cards:[{page:'checklist',size:'mini',meta:'Igor commented on step 4',quote:'“Wait for CI to finish, then push the ios-v tag”'}]},
   {p:'vidhu',t:'10:07 AM',m:'Perfect, thanks!'},
   {p:'matt',t:'10:12 AM',m:'<span class="at">@Matt’s Sutando</span> make a one-page HTML plan for a team offsite in this room’s Commons, and a Doc with a short meeting agenda.'},
-  {p:'msut',t:'10:13 AM',m:'Both are in Commons. The plan has a draft schedule; date, venue and budget are still open.',cards:[{page:'plan',meta:'HTML page · in Commons · just now'},{page:'agenda',meta:'Doc · in Commons · just now'}]},
+  {p:'msut',t:'10:13 AM',m:'Both are in Commons. The plan has a draft schedule; date, venue and budget are still open.',agent:true,cards:[{page:'plan',meta:'HTML page · in Commons · just now',presence:'Adina is here'},{page:'agenda',meta:'Doc · in Commons · just now'}]},
   {p:'adina',t:'10:15 AM',m:'Love this. I’ll drop the venue shortlist into the plan before lunch.'},
-  {p:'kewei',t:'10:16 AM',m:'Can we keep it to one night? Flights from Shanghai are rough on a Friday.'}
+  {p:'kewei',t:'10:16 AM',m:'Can we keep it to one night? Flights from Shanghai are rough on a Friday.'},
+  {p:'adina',t:'10:31 AM',m:'Venue shortlist is in. Kept it to one night like kewei asked.',cards:[{page:'plan',size:'mini',meta:'Adina shared an update',updated:true}]}
 ];
 
 const $ = s=>document.querySelector(s);
 const stage=$('#stage'), app=$('#app'), msgsEl=$('#msgs'), scroller=$('#scroll'), cbtn=$('#cbtn'), tip=$('#tip'), peek=$('#peek'), panel=$('#panel');
-const state = {style:'e', peek:true, open:null, tabs:[], hoverPage:null, mobile:null};
+const state = {style:'e', peek:true, open:null, tabs:[], hoverPage:null, mobile:null, making:false, arrived:false};
 
 function avatar(id){
   const p=P[id];
@@ -438,16 +477,23 @@ function avatar(id){
   if (p.img) return `<img class="av" src="${IMG[p.img]}" alt="">`;
   return `<span class="av" style="background:${p.bg}" aria-hidden="true">${p.init}</span>`;
 }
-function card(c){
+function card(c, agentMsg){
   const pg=PAGES[c.page]; const view = state.open===c.page;
+  if (c.size==='mini') return `<button class="card mini ${view?'viewing':''}" data-type="${pg.type}" data-page="${c.page}" aria-label="${pg.title}, ${TYPE_NAME[pg.type]}. ${c.meta}. Opens in Commons">
+    <span class="tile">${ICON[pg.type]}</span><span style="min-width:0"><span class="tt">${pg.title}</span><span class="mm">${c.meta}</span></span>
+    <span class="acts">${c.updated?'<span class="upd">Updated</span>':''}<span class="go">${ICON.panel}</span></span>${c.quote?`<span class="q">${c.quote}</span>`:''}</button>`;
+  if (agentMsg && state.making && state.style==='e') return `<div class="card e req" data-type="${pg.type}" role="status" aria-label="${pg.title}: Matt’s Sutando is making this page">
+    <span class="pv" aria-hidden="true"><i class="t"></i><i style="width:300px;max-width:100%"></i><i style="width:270px;max-width:92%"></i><i style="width:210px;max-width:70%"></i><span class="prog"><span></span></span></span>
+    <span class="ft"><span class="ty">${ICON[pg.type]}</span><span style="min-width:0"><span class="tt" style="display:block">${pg.title}</span><span class="mm sweep" style="display:block">Matt’s Sutando is making this page…</span></span><span class="go">${ICON.panel}</span></span></div>`;
   const cls = `card ${state.style} ${view?'viewing':''}`;
   const label = `${pg.title}, ${TYPE_NAME[pg.type]}. ${view?'Open in Commons':'Opens in Commons'}`;
   if (state.style==='c2') return `<button class="${cls}" data-type="${pg.type}" data-page="${c.page}" aria-label="${label}">
     <span class="hd"><span class="tile">${ICON[pg.type]}</span><span style="min-width:0"><span class="tt" style="display:block">${pg.title}</span><span class="mm">${c.meta}</span></span></span>
     <span class="secs">${pg.secs.map(s=>`<span>${s}</span>`).join('')}</span>
     <span class="cta">${view?'Viewing in Commons':'Open in Commons'} ${ICON.panel}</span></button>`;
-  return `<button class="${cls}" data-type="${pg.type}" data-page="${c.page}" aria-label="${label}">
-    <span class="pv" aria-hidden="true"><i class="t"></i><i style="width:300px;max-width:100%"></i><i style="width:270px;max-width:92%"></i><i style="width:210px;max-width:70%"></i>
+  const extra = c.presence && !view ? `<span class="pres"><img src="${IMG.adina}" alt=""><b></b>${c.presence}</span>` : (c.updated ? '<span class="upd">Updated</span>' : '');
+  return `<button class="${cls} ${agentMsg&&state.arrived?'arrived':''}" data-type="${pg.type}" data-page="${c.page}" aria-label="${label}">
+    <span class="pv" aria-hidden="true">${extra}<i class="t"></i><i style="width:300px;max-width:100%"></i><i style="width:270px;max-width:92%"></i><i style="width:210px;max-width:70%"></i>
       <span class="ck"><span></span><i></i><span></span><i></i><span></span><i></i></span></span>
     <span class="ft"><span class="ty">${ICON[pg.type]}</span><span style="min-width:0"><span class="tt" style="display:block">${pg.title}</span><span class="mm" style="display:block">${c.meta}</span></span>
       <span class="go">${view?'<span class="lbl">Viewing</span>':''}${ICON.panel}</span></span></button>`;
@@ -460,8 +506,9 @@ function render(){
     let att='';
     if (x.thread) att=`<div class="att"><button class="thread" type="button"><span class="stack"><img src="${IMG.yixuan}" alt=""><img src="${IMG.matt}" alt=""></span><b>3 replies</b> · Yixuan Zhai: Merged, CI is green</button></div>`;
     if (x.file) att=`<div class="att"><div class="file"><span class="ft">${ICON.video}</span><span style="min-width:0"><div class="t">sim-recording-nov-21.mov</div><div class="m">Media · 1:42 · added by Matt Morgan</div></span></div></div>`;
-    if (x.cards) att=`<div class="att">${x.cards.map(card).join('')}</div>`;
-    return `<div class="row">${avatar(x.p)}<div style="min-width:0"><div class="r-head"><span class="r-name">${p.name}</span>${p.agent?'<span class="agent-tag">Agent</span>':''}<span class="r-time">${x.t}</span></div><div class="r-msg">${x.m}</div></div>${att}</div>`;
+    if (x.cards) att=`<div class="att">${x.cards.map(c=>card(c,x.agent)).join('')}</div>`;
+    const msg = (x.agent && state.making) ? 'On it. Making a one-page HTML plan and a Doc with the agenda.' : x.m;
+    return `<div class="row">${avatar(x.p)}<div style="min-width:0"><div class="r-head"><span class="r-name">${p.name}</span>${p.agent?'<span class="agent-tag">Agent</span>':''}<span class="r-time">${x.t}</span></div><div class="r-msg">${msg}</div></div>${att}</div>`;
   }).join('');
   scroller.scrollTop = scroller.scrollHeight - scroller.clientHeight - keep;
   bindCards();
@@ -499,7 +546,7 @@ function hoverOff(cardEl){
   offTimer=setTimeout(()=>{ cbtn.classList.remove('glow'); peek.classList.remove('on'); state.hoverPage=null; },60);
 }
 function bindCards(){
-  msgsEl.querySelectorAll('.card').forEach(c=>{
+  msgsEl.querySelectorAll('button.card').forEach(c=>{
     c.addEventListener('pointerenter',e=>{ if(e.pointerType!=='touch') hoverOn(c); });
     c.addEventListener('pointerleave',()=>hoverOff(c));
     c.addEventListener('focus',()=>{ if(c.matches(':focus-visible')) hoverOn(c); });
@@ -585,6 +632,13 @@ document.querySelectorAll('.seg-in').forEach(seg=>seg.addEventListener('click',e
   if (ctl==='motion'){ document.documentElement.classList.toggle('still', v==='still'); }
 }));
 $('#reset').addEventListener('click',()=>location.reload());
+let replayT=null;
+$('#replay').addEventListener('click',()=>{
+  clearTimeout(replayT); if (state.open) closePanel();
+  state.making=true; state.arrived=false; render(); scroller.scrollTop=scroller.scrollHeight;
+  const still = document.documentElement.classList.contains('still') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  replayT=setTimeout(()=>{ state.making=false; state.arrived=!still; render(); setTimeout(()=>{state.arrived=false;},600); }, 2800);
+});
 
 render();
 requestAnimationFrame(()=>{ scroller.scrollTop=scroller.scrollHeight; });
