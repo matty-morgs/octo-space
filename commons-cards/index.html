@@ -84,20 +84,22 @@ svg{display:block}
 .pillbtn .badge{position:absolute;top:5px;right:9px;width:6px;height:6px;border-radius:50%;background:var(--needs)}
 
 /* Commons button: rest, glow (hover on a card), pressed (page open) */
-.cbtn{position:relative;isolation:isolate;height:32px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;border:0;border-radius:10px;background:var(--variant);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;transition:background .2s,color .2s,box-shadow .2s}
+.cwrap{position:relative;display:inline-flex}
+.cbtn{position:relative;isolation:isolate;overflow:hidden;height:32px;display:inline-flex;align-items:center;gap:7px;padding:0 12px;border:0;border-radius:10px;background:var(--variant);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;transition:background .2s,color .2s,box-shadow .2s}
 .cbtn .n{font-size:12px;color:var(--text-2);font-weight:500;transition:color .2s}
-.cbtn::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;pointer-events:none;
+/* Glow lives inside the edge only, like Brand/Ember: a soft inner glow (two inset shadows, as in the Ember style) plus a thin ring that circles just inside the edge. */
+.cbtn::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;z-index:-1;
   background:conic-gradient(from var(--a),var(--g-ink,#000) 0%,var(--g-full,#000) 16%,var(--g-soft,#fff) 55%,var(--g-full,#000) 90%,var(--g-ink,#000) 100%);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
   opacity:0;transition:opacity .2s}
 .cbtn.pressed{background:var(--p-soft);color:var(--p-ink);box-shadow:inset 0 0 0 1.5px var(--p-ink)}
 .cbtn.pressed .n{color:var(--p-ink)}
-.cbtn.glow{background:#fff;color:var(--g-ink);box-shadow:inset 0 0 10px color-mix(in srgb,var(--g-full) 75%,transparent),0 0 14px color-mix(in srgb,var(--g-full) 55%,transparent);transition:background .12s,color .12s,box-shadow .12s}
+.cbtn.glow{background:#fff;color:var(--g-ink);box-shadow:inset 2px 2px 10px color-mix(in srgb,var(--g-full) 50%,transparent),inset -2px -2px 10px color-mix(in srgb,var(--g-full) 50%,transparent);transition:background .12s,color .12s,box-shadow .12s}
 .cbtn.glow .n{color:var(--g-ink)}
 .cbtn.glow::before{opacity:1;transition:opacity .12s;animation:spin 1.6s linear infinite}
 @keyframes spin{to{--a:360deg}}
 .tip{position:absolute;top:calc(100% + 8px);right:0;white-space:nowrap;background:var(--ink);color:#fff;font-size:12.5px;font-weight:500;border-radius:8px;padding:6px 10px;opacity:0;transform:translateY(-3px);transition:opacity .15s,transform .15s;pointer-events:none;z-index:5}
-.cbtn.glow .tip{opacity:1;transform:none}
+.cbtn.glow + .tip{opacity:1;transform:none}
 
 /* body: chat + commons panel side by side (panel pushes, never covers) */
 .body{flex:1;min-height:0;display:flex;position:relative}
@@ -291,10 +293,10 @@ svg{display:block}
 .notes ul{margin:0;padding-left:18px;display:grid;gap:6px}
 .notes a{color:var(--notify)}
 
-@media (prefers-reduced-motion:reduce){ .cbtn.glow::before{animation:none} .peek,.panel,.mpage,.e .pv{transition:none} }
-.still .cbtn.glow::before{animation:none}
+@media (prefers-reduced-motion:reduce){ .cbtn.glow::before,.cbtn.glow::after{animation:none} .peek,.panel,.mpage,.e .pv{transition:none} }
+.still .cbtn.glow::before,.still .cbtn.glow::after{animation:none}
 .still .peek,.still .panel,.still .mpage,.still .e .pv{transition:none}
-@media (hover:none){ .cbtn .tip{display:none} }
+@media (hover:none){ .cwrap .tip{display:none} }
 </style>
 </head>
 <body>
@@ -356,11 +358,10 @@ svg{display:block}
           <button class="pillbtn d-only" aria-label="Threads"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5h11v8H8l-4 3z"/><path d="M15 9h5v8l-3-2h-6v-2"/></svg></button>
           <button class="pillbtn d-only" aria-label="Activity, 1 needs you"><svg class="ico" viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span class="badge"></span></button>
           <button class="iconbtn m-only" aria-label="Threads"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5h11v8H8l-4 3z"/><path d="M15 9h5v8l-3-2h-6v-2"/></svg></button>
-          <button class="cbtn" id="cbtn" type="button" aria-label="Commons, 4 pages" aria-expanded="false">
+          <span class="cwrap"><button class="cbtn" id="cbtn" type="button" aria-label="Commons, 4 pages" aria-expanded="false">
             <svg class="ico" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
             <span class="d-only">Commons</span><span class="n d-only">4</span>
-            <span class="tip" id="tip"></span>
-          </button>
+          </button><span class="tip" id="tip" aria-hidden="true"></span></span>
           <button class="iconbtn m-only" aria-label="More"><svg class="ico" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button>
         </div>
       </header>
