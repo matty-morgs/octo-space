@@ -303,6 +303,27 @@ button.xb{cursor:pointer;border:0}
   .row{grid-template-columns:18px 32px minmax(0,1fr)}
   .r-acts{grid-column:3;justify-content:flex-start}
 }
+
+/* ----- Commons glow (where a page will open) ----- */
+@property --cga{syntax:"<angle>";inherits:false;initial-value:0deg}
+.cg{display:flex;flex-wrap:wrap;gap:32px;align-items:center;justify-content:center}
+.cg-cards{display:grid;gap:10px}
+[data-ct="html"]{--c:#FDE3CC;--m:#C4621E}[data-ct="doc"]{--c:#DCEEFF;--m:#2F6FD6}[data-ct="sheet"]{--c:#DCF1D6;--m:#2E8A3E}
+:root[data-theme="dark"] [data-ct="html"]{--c:#3D2616;--m:#F6A86B}:root[data-theme="dark"] [data-ct="doc"]{--c:#1B2D45;--m:#8DB8FF}:root[data-theme="dark"] [data-ct="sheet"]{--c:#17301A;--m:#86D493}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) [data-ct="html"]{--c:#3D2616;--m:#F6A86B}:root:not([data-theme="light"]) [data-ct="doc"]{--c:#1B2D45;--m:#8DB8FF}:root:not([data-theme="light"]) [data-ct="sheet"]{--c:#17301A;--m:#86D493}}
+.cg-card{display:grid;grid-template-columns:28px 1fr 28px;align-items:center;gap:10px;width:280px;padding:6px;border-radius:10px;background:var(--c);color:var(--text);font:inherit;text-align:left;border:0;cursor:pointer}
+.cg-card .tl{width:28px;height:28px;border-radius:6px;background:color-mix(in srgb,var(--m) 22%,transparent);color:var(--m);display:grid;place-items:center;font:600 11px/1 var(--mono)}
+.cg-card b{display:block;font-size:13px;font-weight:600;line-height:18px}.cg-card small{display:block;font-size:12px;color:var(--text-2);line-height:16px}
+.cg-card .go{width:28px;height:28px;border-radius:50%;background:var(--surface);color:var(--m);display:grid;place-items:center;font-size:14px}
+.cg-card:hover .go,.cg-card:focus-visible .go{background:var(--m);color:var(--c)}
+.cg-btn{position:relative;isolation:isolate;overflow:hidden;height:34px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;border:0;border-radius:10px;background:var(--key-bg);color:var(--text);font:500 14px/1 var(--font);transition:background .2s,color .2s,box-shadow .2s}
+.cg-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;z-index:-1;pointer-events:none;background:conic-gradient(from var(--cga),var(--gm) 0%,var(--gm) 12%,var(--gc) 55%,var(--gm) 90%,var(--gm) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);opacity:0;transition:opacity .2s}
+.cg-btn.on{background:var(--surface);color:var(--gm);box-shadow:inset 2px 2px 10px var(--gglow),inset -2px -2px 10px var(--gglow);transition:background .12s,color .12s,box-shadow .12s}
+.cg-btn.on::before{opacity:1;transition:opacity .12s;animation:cgspin 1.6s linear infinite}
+@keyframes cgspin{to{--cga:360deg}}
+.cg-tip{font-size:12px;color:var(--quiet);min-height:18px;text-align:center}
+@media (prefers-reduced-motion: reduce){ .cg-btn.on::before{animation:none} }
+.still .cg-btn.on::before{animation:none}
 </style>
 </head>
 <body>
@@ -325,7 +346,7 @@ button.xb{cursor:pointer;border:0}
   <header id="top">
     <span class="tag">Motion spec · proposed</span>
     <h1>Attention signals</h1>
-    <p class="lede">Three signals in s.space, each with one job. A slow warm breath means something is waiting on you. A still warm ring marks the answer your Sutando suggests. A quiet grey sweep means an agent is working on it. Everything else stays calm.</p>
+    <p class="lede">Four signals in s.space, each with one job. A slow warm breath means something is waiting on you. A still warm ring marks the answer your Sutando suggests. A quiet grey sweep means an agent is working on it. And when you point at a Commons page in the chat, the Commons button glows in that page’s colour to show where it will open. Everything else stays calm.</p>
   </header>
 
   <section aria-labelledby="s0">
@@ -492,9 +513,30 @@ button.xb{cursor:pointer;border:0}
     </div>
   </section>
 
+  <section aria-labelledby="s7">
+    <div class="sec-head">
+      <h2 id="s7">6 · Where a page opens: the Commons glow</h2>
+      <p class="muted">Added Nov 24. Hover or focus a Commons card in the chat and the room header’s Commons button turns white (the surface colour in dark mode) with a soft glow and a thin ring circling just inside its edge, in that page’s type colour. It connects “this card” with “that panel”. Nothing spills outside the button, it is never orange-for-attention (it follows the page type), and it only runs while you point at a card, so it never competes with the breath or the sweep.</p>
+    </div>
+    <div class="stage">
+      <div class="cg">
+        <div class="cg-cards">
+          <button type="button" class="cg-card" data-ct="html" data-t="Team offsite plan"><span class="tl">&lt;/&gt;</span><span><b>Team offsite plan</b><small>HTML page · in Commons</small></span><span class="go">▸</span></button>
+          <button type="button" class="cg-card" data-ct="doc" data-t="Offsite agenda"><span class="tl">Doc</span><span><b>Offsite agenda</b><small>Doc · in Commons</small></span><span class="go">▸</span></button>
+          <button type="button" class="cg-card" data-ct="sheet" data-t="iOS release checklist"><span class="tl">▦</span><span><b>iOS release checklist</b><small>Sheet · in Commons</small></span><span class="go">▸</span></button>
+        </div>
+        <div style="display:grid;gap:8px;justify-items:center">
+          <span class="cg-btn" id="cgBtn" aria-hidden="true">▤ Commons <span style="opacity:.7;font-size:12px">4</span></span>
+          <span class="cg-tip" id="cgTip">Point at a card</span>
+        </div>
+      </div>
+      <p class="readout"><span>loop <b>1.6 s</b> linear</span><span>in <b>120 ms</b> · out <b>200 ms</b></span><span>inner glow <b>±2px · 10px</b></span><span>ring <b>1.5px inside</b></span></p>
+    </div>
+  </section>
+
   <section aria-labelledby="s5">
     <div class="sec-head">
-      <h2 id="s5">6 · Why a dark primary button</h2>
+      <h2 id="s5">7 · Why a dark primary button</h2>
       <p class="muted">Weave 0.11 has since made Primary near-black, so this is now the system. In this direction, colour already carries meaning: agent and room marks are colourful, orange means “waiting on you”, and blue is links, mentions and unread. A near-black primary stays the strongest thing on screen without adding another colour to the mix, and it matches the dark send button.</p>
     </div>
     <div class="cmp">
@@ -536,7 +578,7 @@ button.xb{cursor:pointer;border:0}
 
   <section aria-labelledby="s3">
     <div class="sec-head">
-      <h2 id="s3">7 · Rules and spec</h2>
+      <h2 id="s3">8 · Rules and spec</h2>
       <p class="muted">For engineering. Values match the Figma components “Question card (breathing)” and “Margin light (breathing)”.</p>
     </div>
     <div class="grid2">
@@ -554,6 +596,7 @@ button.xb{cursor:pointer;border:0}
           <li><span>09</span>The pour settles to a colour by answer: full gradient for the suggested yes (Take it), pink for Decline, yellow for Hand to Rui. The note’s edge matches while the agent works, then turns grey.</li>
           <li><span>10</span>Opening something is not answering it. Open stops the breath but keeps the item in Needs you, with a hollow dot, until the work is done. Snooze stops the breath with no pour.</li>
           <li><span>11</span>A grey sweep means an agent is working. Only on live status text, never on headings or on anything waiting on you.</li>
+          <li><span>12</span>The Commons glow shows where a page will open. Only on the Commons button, only while a card is hovered or focused, always in the page type’s colour, and always inside the button’s edge. Clicking stops it; the button stays tinted while that page is open.</li>
         </ul>
       </div>
       <div style="display:grid;gap:14px;align-content:start">
@@ -896,6 +939,17 @@ button.xb{cursor:pointer;border:0}
   });
 
   bigList.build(); miniList.build();
+})();
+</script>
+
+<script>
+(()=>{ const btn=document.getElementById('cgBtn'), tip=document.getElementById('cgTip'); if(!btn) return; let t=null;
+ const on=c=>{ clearTimeout(t); const cs=getComputedStyle(c); const m=cs.getPropertyValue('--m').trim(), cc=cs.getPropertyValue('--c').trim();
+   const dark = matchMedia('(prefers-color-scheme: dark)').matches && document.documentElement.dataset.theme!=='light' || document.documentElement.dataset.theme==='dark';
+   btn.style.setProperty('--gm',m); btn.style.setProperty('--gc',cc); btn.style.setProperty('--gglow', dark ? 'color-mix(in srgb,'+m+' 35%,transparent)' : cc);
+   btn.classList.add('on'); tip.textContent=c.dataset.t+' opens here'; };
+ const off=()=>{ t=setTimeout(()=>{ btn.classList.remove('on'); tip.textContent='Point at a card'; },60); };
+ document.querySelectorAll('.cg-card').forEach(c=>{ c.addEventListener('pointerenter',()=>on(c)); c.addEventListener('pointerleave',off); c.addEventListener('focus',()=>on(c)); c.addEventListener('blur',off); c.addEventListener('click',()=>on(c)); });
 })();
 </script>
 </body>
