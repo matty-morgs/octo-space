@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>s.space welcome card · two options</title>
+<title>s.space welcome card · three options</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
@@ -65,6 +65,8 @@ main{max-width:1180px;margin:0 auto;padding:28px 20px 60px;display:grid;gap:28px
 .cardB.spin::before{animation:turn 2.4s linear 3}
 @keyframes turn{to{--a:360deg}}
 .cardB .top{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:0 4px}
+.cardB.full .top{grid-template-columns:64px 1fr;align-items:center}
+.cardB .fig{width:64px;height:auto;display:block}
 .cardB .face{width:44px;height:44px;border-radius:50%;background:var(--cont) center/cover no-repeat}
 .cardB .from{font-size:12px;color:var(--text-2)}
 .cardB .pagerow{background:var(--cont);border-radius:10px;padding:8px}
@@ -86,8 +88,8 @@ main{max-width:1180px;margin:0 auto;padding:28px 20px 60px;display:grid;gap:28px
 </head>
 <body>
 <div class="bar"><div class="bar-in">
-  <h1>Welcome card · two options</h1>
-  <div class="seg"><span>Option</span><div class="seg-in" data-ctl="opt"><button aria-pressed="false" data-v="A">A · Tinted</button><button aria-pressed="true" data-v="B">B · White + glow</button></div></div>
+  <h1>Welcome card · three options</h1>
+  <div class="seg"><span>Option</span><div class="seg-in" data-ctl="opt"><button aria-pressed="false" data-v="A">A · Tinted</button><button aria-pressed="true" data-v="B">B · White + glow</button><button aria-pressed="false" data-v="C">C · Glow + full Sutando</button></div></div>
   <div class="seg"><span>Theme</span><div class="seg-in" data-ctl="theme"><button aria-pressed="true" data-v="light">Light</button><button aria-pressed="false" data-v="dark">Dark</button></div></div>
   <div class="seg"><span>Motion</span><div class="seg-in" data-ctl="motion"><button aria-pressed="true" data-v="on">On</button><button aria-pressed="false" data-v="still">Reduced</button></div></div>
   <button class="rbtn" id="replay" type="button">Replay arrival</button>
@@ -112,7 +114,7 @@ main{max-width:1180px;margin:0 auto;padding:28px 20px 60px;display:grid;gap:28px
     </section>
   </div>
   <section>
-    <p class="label">How option B moves</p>
+    <p class="label">How options B and C move</p>
     <p class="note">The ring circles inside the edge in the page’s colour (2.4 s a turn) when the card first appears, settles to a still glow after three turns, and stops once they press Start. Nothing spills outside the card. Only the newcomer’s card glows; everyone else gets the quiet mini. Reduced motion: still glow. Press Start to see the settled state.</p>
   </section>
 </main>
@@ -124,10 +126,10 @@ let opt='B', started=false;
 const person=(i,bg,name,t,msg)=>`<div class="row"><span class="av" style="background:${bg}">${i}</span><div><div class="rh"><b>${name}</b><span>${t}</span></div><div class="msg">${msg}</div></div></div>`;
 const pageRow=(btn)=>`<div class="pagerow"><span class="tile">&lt;/&gt;</span><span style="min-width:0"><div class="pt">Getting started with s.space</div><div class="pm">HTML page · in Community Support</div></span>${btn}</div>`;
 function cardA(){ return `<div class="cardA in"><div class="by">Chi Wang invited you to get started</div><div class="pv"><img src="${FULL}" alt="The s.space Sutando in a cape"><div><div class="hd">Welcome to s.space</div><div class="bd">A 5-minute tour of rooms, your Sutando and Commons.</div></div></div>${pageRow(`<button class="start" type="button">${started?'Open':'Start'}</button>`)}</div>`; }
-function cardB(){ return `<div class="cardB in ${started?'started':'spin'}"><div class="top"><span class="face" style="background-image:url(${FACE})" role="img" aria-label="Sutando"></span><div><div class="from">Chi Wang · Community Support</div><div class="hd">Welcome to s.space</div><div class="bd">A 5-minute tour of rooms, your Sutando and Commons.</div></div></div>${pageRow(`<button class="start" type="button">${started?'Open':'Start'}</button>`)}</div>`; }
+function cardB(full){ return `<div class="cardB in ${full?'full':''} ${started?'started':'spin'}"><div class="top">${full?`<img class="fig" src="${FULL}" alt="The s.space Sutando in a cape">`:`<span class="face" style="background-image:url(${FACE})" role="img" aria-label="Sutando"></span>`}<div><div class="from">Chi Wang · Community Support</div><div class="hd">Welcome to s.space</div><div class="bd">A 5-minute tour of rooms, your Sutando and Commons.</div></div></div>${pageRow(`<button class="start" type="button">${started?'Open':'Start'}</button>`)}</div>`; }
 function mini(name,ok){ return `<div class="mini"><span class="face" style="background-image:url(${FACE})"></span><span style="min-width:0"><div class="pt" style="font-size:13px">Chi welcomed ${name}</div><div class="pm">Getting started with s.space</div></span><span class="st ${ok?'ok':''}">${ok?'Joined':'Not in yet'}</span></div>`; }
 function render(){
-  $('#newFeed').innerHTML = person('C','#3d4a9e','Chi Wang','9:02 AM','Hi Yixuan, welcome in! Start here 👇') .replace('</div></div></div>', `</div></div><div class="att">${opt==='A'?cardA():cardB()}</div></div>`);
+  $('#newFeed').innerHTML = person('C','#3d4a9e','Chi Wang','9:02 AM','Hi Yixuan, welcome in! Start here 👇') .replace('</div></div></div>', `</div></div><div class="att">${opt==='A'?cardA():cardB(opt==='C')}</div></div>`);
   $('#othersFeed').innerHTML =
     `<div class="row"><span class="av" style="background:#3d4a9e">C</span><div><div class="rh"><b>Chi Wang</b><span>8:41 AM</span></div><div class="msg">Welcome, Dominic!</div><div style="margin-top:8px">${mini('Dominic Wong',true)}</div></div></div>`+
     `<div class="row"><span class="av" style="background:#7a5310">K</span><div><div class="rh"><b>kewei</b><span>8:55 AM</span></div><div class="msg">Is the tour the same one we send on mobile?</div></div></div>`+
