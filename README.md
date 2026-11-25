@@ -7,5 +7,6 @@ Specs and explorations for s.space, shared for review. Each piece lives in its o
 | Attention signals | `attention-signals/` | Proposed |
 | Onboarding · aura in motion | `onboarding-aura/` | Exploration |
 | Commons cards · prototype | `commons-cards/` | Exploration |
+| Welcome card · two options | `commons-cards/welcome/` | Exploration |
 
 The source designs are in Figma: [AG2] Product.
