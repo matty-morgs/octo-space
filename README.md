@@ -4,6 +4,7 @@ Specs and explorations for s.space, shared for review. Each piece lives in its o
 
 | Piece | Folder | Status |
 | --- | --- | --- |
+| Chat · visual balance | `chat-balance/` | Recommended |
 | Attention signals | `attention-signals/` | Proposed |
 | Onboarding · aura in motion | `onboarding-aura/` | Exploration |
 | Commons cards · prototype | `commons-cards/` | Exploration |
