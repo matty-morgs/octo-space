@@ -30,4 +30,5 @@ All images are 2× renders.
   1. Render the copy twice, once on a white fill and once on black. Use the glass capsule frames with their fills, strokes and effects cleared, because the page draws the glass in CSS.
   2. Run `python3 tools/matte.py white.png black.png out.png`.
 - **Positions:** if a capsule or the header changes size, update its position and size in `index.html`.
+- **Who reacted:** each reaction chip in Figma is named `Reaction · <emoji> · <name>|<name>`. After exporting a timeline, read each chip's position (at 1×, relative to the export copy) and its name. Write them into `reactions.json` and into the inline data at the bottom of `index.html`. The page lays invisible hover/tap targets over the chips and shows the library Tooltip.
 - **Cleanup:** delete the scratch copies from the Figma page afterwards.

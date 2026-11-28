@@ -79,6 +79,13 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
 .room .lg{border-radius:22px;height:44px}
 .list{background-image:url(img/list.png)}
 
+/* who-reacted: invisible hit areas over each reaction chip, and the library Tooltip (ink, 12/18 Medium, radius 4) */
+.tl{position:relative}
+.rx{position:absolute;width:48px;height:26px;border:0;padding:0;background:transparent;border-radius:13px;cursor:pointer}
+.rx:hover,.rx.on{background:rgba(27,25,25,.05)}
+.rx:focus-visible{outline:2px solid #1b1919;outline-offset:1px}
+.tip{position:absolute;z-index:3;pointer-events:none;background:#1b1919;color:#fff;border-radius:4px;padding:4px 8px;font:500 12px/18px var(--font);box-shadow:0 1px 12px rgba(27,25,25,.16);width:max-content;max-width:280px;opacity:0;transform:translateY(2px);transition:opacity .12s,transform .12s}
+.tip.show{opacity:1;transform:none}
 .notes{max-width:1520px;margin:0 auto;padding:0 32px 64px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px}
 .notes div{display:grid;gap:2px}
 .notes b{font-weight:600;font-size:14px}
@@ -111,7 +118,7 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
     <div class="desk-fit" id="deskFit">
       <div class="shot desk" id="desk">
         <div class="panel" id="dpanel">
-          <div class="scroll" id="dscroll"><div class="pad"></div><img src="img/desk_timeline.png" alt="UI bugs room conversation" width="1039"><div class="tail"></div></div>
+          <div class="scroll" id="dscroll"><div class="pad"></div><div class="tl"><img src="img/desk_timeline.png" alt="UI bugs room conversation" width="1039"></div><div class="tail"></div></div>
           <div class="strip"></div>
           <img class="overlay" src="img/desk_header.png" width="1089" height="64" alt="">
           <div class="lg composer liq"></div>
@@ -126,7 +133,7 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
     <div class="phones">
       <div class="phone-fit"><div class="shot phone list" role="img" aria-label="Chat list with starred chats and unread dots"></div></div>
       <div class="phone-fit"><div class="shot phone room" id="room">
-        <div class="scroll" id="mscroll"><div class="pad"></div><img src="img/mob_timeline.png" alt="UI bugs room conversation" width="400"><div class="tail"></div></div>
+        <div class="scroll" id="mscroll"><div class="pad"></div><div class="tl"><img src="img/mob_timeline.png" alt="UI bugs room conversation" width="400"></div><div class="tail"></div></div>
         <div class="strip reg"></div>
         <img class="overlay reg" src="img/mob_header.png" width="402" height="116" alt="">
         <div class="edge liq"></div>
@@ -146,7 +153,7 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
   <div><b>Colour comes from content</b><span>Photos, agent and room artwork, emoji and Commons cards bring the colour. The chrome around them stays white, grey and ink.</span></div>
   <div><b>Replies, forwards and threads</b><span>A reply in the chat shows the quoted message as a quiet card. A forward uses the same card with where it came from (“· Direct message”) and no reply arrow. A thread shows a one-line “3 replies · last reply” row under the message.</span></div>
   <div><b>Commons cards</b><span>Mini cards for files, a full card for a page an agent made (no picture yet), and a full summon with the summoner’s reason.</span></div>
-  <div><b>Reactions (proposed)</b><span>Neutral chips with a count. Yours gets a grey fill and a darker edge, not a colour. A new Message/Reaction component, pending sign-off.</span></div>
+  <div><b>Reactions (proposed)</b><span>Neutral chips with a count. Yours gets a grey fill and a darker edge, not a colour. Agents react to nearly everything, so most messages carry a few. Hover a reaction on desktop, or tap it on mobile, to see who reacted (the library Tooltip). A new Message/Reaction component, pending sign-off.</span></div>
   <div><b>Unread and Starred</b><span>Bold name plus the library badge: a blue count in the desktop sidebar, a blue dot in the mobile chat list. Starred sits at the top of both.</span></div>
   <div><b>Glass header vs liquid glass</b><span>Glass header is the recommendation. Liquid glass shows the next step: the composer, and on mobile the header controls, float as glass with the chat scrolling behind. The mobile room name drops its icon to save room.</span></div>
 </section>
@@ -178,6 +185,38 @@ function seg(attr, apply){
 }
 seg('show', v=>{ document.getElementById('stage').dataset.show=v; });
 seg('glass', v=>{ document.getElementById('stage').classList.toggle('liquid', v==='liquid'); scrollers.forEach(f=>f()); });
+
+// who reacted: hover on desktop, tap on mobile. Chip positions come from the Figma export (also in reactions.json).
+(data=>{
+  const names=w=>{const a=w.split('|');return a.length<2?a[0]:a.slice(0,-1).join(', ')+' and '+a[a.length-1];};
+  let open=null;
+  const hide=()=>{ if(open){ open.tip.classList.remove('show'); open.btn.classList.remove('on'); open=null; } };
+  Object.entries(data).forEach(([sid,chips])=>{
+    const scroll=document.getElementById(sid), tl=scroll.querySelector('.tl');
+    const tip=document.createElement('div'); tip.className='tip'; tip.setAttribute('role','tooltip'); tl.appendChild(tip);
+    const show=(btn,x,y,label)=>{
+      hide(); tip.textContent=label; btn.classList.add('on');
+      const w=tip.offsetWidth, h=tip.offsetHeight, max=tl.clientWidth-8;
+      tip.style.left=Math.max(8,Math.min(max-w,x+24-w/2))+'px';
+      const roomAbove = y - scroll.scrollTop - (sid==='dscroll'?64:116);
+      tip.style.top=(roomAbove > h+12 ? y-h-6 : y+26+6)+'px';
+      tip.classList.add('show'); open={tip,btn};
+    };
+    chips.forEach(([x,y,emoji,who])=>{
+      const b=document.createElement('button'); b.className='rx';
+      const label=names(who)+' reacted with '+emoji;
+      b.style.left=x+'px'; b.style.top=y+'px'; b.setAttribute('aria-label',label);
+      b.addEventListener('pointerenter',e=>{ if(e.pointerType==='mouse') show(b,x,y,label); });
+      b.addEventListener('pointerleave',e=>{ if(e.pointerType==='mouse') hide(); });
+      b.addEventListener('focus',()=>show(b,x,y,label)); b.addEventListener('blur',hide);
+      let pt='mouse'; b.addEventListener('pointerdown',e=>{ pt=e.pointerType; });
+      b.addEventListener('click',e=>{ e.stopPropagation(); if(pt!=='mouse'&&open&&open.btn===b) hide(); else show(b,x,y,label); });
+      tl.appendChild(b);
+    });
+    scroll.addEventListener('scroll',hide,{passive:true});
+  });
+  document.addEventListener('click',hide);
+})({"dscroll": [[56, 158, "👀", "Susan’s QA|Susan’s Dev3|Igor Komolov"], [110, 158, "✅", "Susan’s product manager"], [56, 683, "✅", "You|Yixuan Zhai|Susan’s Dev3"], [110, 683, "🙏", "Igor Komolov"], [164, 683, "👀", "Susan’s product manager|qingyun"], [56, 797, "👍", "Susan’s Dev3|Susan’s QA|Yixuan Zhai"], [56, 1025, "👀", "Susan’s Dev3|Susan’s QA"], [110, 1025, "👍", "Yixuan Zhai"], [56, 1323.5, "✅", "You|Igor Komolov"], [110, 1323.5, "🎉", "Yixuan Zhai|Susan’s QA|Susan’s product manager"], [164, 1323.5, "🚀", "qingyun"], [56, 1854.5, "👀", "Susan’s QA|Susan’s Dev3|Igor Komolov"], [110, 1854.5, "✅", "You"], [56, 2006.5, "✅", "Susan’s product manager|Igor Komolov"], [110, 2006.5, "❤️", "qingyun|Yixuan Zhai"], [164, 2006.5, "🙌", "Susan’s Dev3"], [56, 2196.5, "👍", "Igor Komolov|Susan’s Dev3"], [56, 2364.5, "👀", "Susan’s QA|Susan’s Dev3|Susan’s product manager"], [110, 2364.5, "🙏", "Yixuan Zhai"], [56, 2576.5, "🙌", "qingyun|Igor Komolov"], [110, 2576.5, "✅", "Susan’s product manager"]], "mscroll": [[56, 144, "👀", "Susan’s QA|Susan’s Dev3|Igor Komolov"], [110, 144, "✅", "Susan’s product manager"], [56, 845, "✅", "You|Yixuan Zhai|Susan’s Dev3"], [110, 845, "🙏", "Igor Komolov"], [164, 845, "👀", "Susan’s product manager|qingyun"], [56, 981, "👍", "Susan’s Dev3|Susan’s QA|Yixuan Zhai"], [56, 1251, "👀", "Susan’s Dev3|Susan’s QA"], [110, 1251, "👍", "Yixuan Zhai"], [56, 1657, "✅", "You|Igor Komolov"], [110, 1657, "🎉", "Yixuan Zhai|Susan’s QA|Susan’s product manager"], [164, 1657, "🚀", "qingyun"], [56, 2320, "👀", "Susan’s QA|Susan’s Dev3|Igor Komolov"], [110, 2320, "✅", "You"], [56, 2516, "✅", "Susan’s product manager|Igor Komolov"], [110, 2516, "❤️", "qingyun|Yixuan Zhai"], [164, 2516, "🙌", "Susan’s Dev3"], [56, 2748, "👍", "Igor Komolov|Susan’s Dev3"], [56, 2938, "👀", "Susan’s QA|Susan’s Dev3|Susan’s product manager"], [110, 2938, "🙏", "Yixuan Zhai"], [56, 3214, "🙌", "qingyun|Igor Komolov"], [110, 3214, "✅", "Susan’s product manager"]]});
 </script>
 </body>
 </html>
