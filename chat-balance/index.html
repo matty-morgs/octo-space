@@ -87,7 +87,7 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
 <header class="top">
   <div>
     <h1>Chat · visual balance</h1>
-    <p>The recommended timeline in a busy, real room: long agent bug reports, replies and threads, Commons cards, reactions, real avatars, unread badges, starred chats and bold unread names. Built from the s.space library in Figma. Scroll the chats to see the glass.</p>
+    <p>The recommended timeline in a busy, real room: long agent bug reports, in-chat replies, a forwarded message, threads, Commons cards, reactions, real avatars, unread badges, starred chats and bold unread names. Built from the s.space library in Figma. Scroll the chats to see the glass.</p>
   </div>
   <div class="controls">
     <div class="seg" role="group" aria-label="Glass">
@@ -128,7 +128,7 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
         <img class="overlay reg" src="img/mob_header.png" width="402" height="116" alt="">
         <div class="edge liq"></div>
         <div class="lg liq" style="left:12px;top:66px;width:44px"></div>
-        <div class="lg liq" style="left:64px;top:66px;width:137px"></div>
+        <div class="lg liq" style="left:64px;top:66px;width:103px"></div>
         <div class="lg liq" style="left:224px;top:66px;width:166px"></div>
         <div class="lg liq" style="left:12px;top:790px;width:44px"></div>
         <div class="lg liq" style="left:64px;top:790px;width:326px"></div>
@@ -140,11 +140,11 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
 
 <section class="notes" aria-label="What's in it">
   <div><b>Colour comes from content</b><span>Photos, agent and room artwork, emoji and Commons cards bring the colour. The chrome around them stays white, grey and ink.</span></div>
-  <div><b>Replies and threads</b><span>A reply shows the quoted message as a quiet card. A thread shows a one-line “3 replies · last reply” row under the message.</span></div>
+  <div><b>Replies, forwards and threads</b><span>A reply in the chat shows the quoted message as a quiet card. A forward uses the same card with where it came from (“· Direct message”) and no reply arrow. A thread shows a one-line “3 replies · last reply” row under the message.</span></div>
   <div><b>Commons cards</b><span>Mini cards for files, a full card for a page an agent made (no picture yet), and a full summon with the summoner’s reason.</span></div>
   <div><b>Reactions (proposed)</b><span>Neutral chips with a count. Yours gets a grey fill and a darker edge, not a colour. A new Message/Reaction component, pending sign-off.</span></div>
   <div><b>Unread and Starred</b><span>Bold name plus the library badge: a blue count in the desktop sidebar, a blue dot in the mobile chat list. Starred sits at the top of both.</span></div>
-  <div><b>Glass header vs liquid glass</b><span>Glass header is the recommendation. Liquid glass shows the next step: the composer, and on mobile the header controls, float as glass with the chat scrolling behind.</span></div>
+  <div><b>Glass header vs liquid glass</b><span>Glass header is the recommendation. Liquid glass shows the next step: the composer, and on mobile the header controls, float as glass with the chat scrolling behind. The mobile room name drops its icon to save room.</span></div>
 </section>
 
 <script>
