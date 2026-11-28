@@ -8,51 +8,72 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
 <style>
 /* Every pixel of UI on this page is rendered from the Figma frames on
-   [AG2] Product › Chat / Visual balance · stress test (UI bugs), which are built from
-   the library components. The page adds what Figma can't: real scrolling and the
-   live glass header (option C: white 70% → 60%, 12px blur fading out at the bottom, no line). */
+   [AG2] Product › Chat / Visual balance · stress test (UI bugs), built from the library
+   components. The page adds what Figma can't: real scrolling, and the glass live in CSS.
+   Glass strip (recommended): white 88% → 82%, 12px blur fading out at the bottom, no line.
+   Liquid glass (next step): white 55%, 16px blur, 1px white edge, soft shadow, floating. */
 :root{--canvas:#f4f4f4;--ink:#1b1919;--text-2:#666360;--font:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webkit-font-smoothing:antialiased}
 .top{max-width:1520px;margin:0 auto;padding:40px 32px 8px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
 .top h1{margin:0;font-size:28px;letter-spacing:-.015em;font-weight:600}
-.top p{margin:6px 0 0;color:var(--text-2);max-width:780px}
+.top p{margin:6px 0 0;color:var(--text-2);max-width:760px}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .seg{display:inline-flex;background:#e9e8e7;border-radius:10px;padding:3px}
-.seg button{font:inherit;border:0;background:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer}
+.seg button{font:inherit;border:0;background:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;white-space:nowrap}
 .seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(27,25,25,.12)}
 .stage{max-width:1520px;margin:0 auto;padding:24px 32px 56px;display:flex;flex-direction:column;gap:44px;align-items:center}
 .stage > section{width:100%;display:flex;flex-direction:column;align-items:center}
 .stage[data-show="desktop"] .mobile-wrap,.stage[data-show="mobile"] .desk-wrap{display:none}
-.label{font-size:12px;letter-spacing:.08em;font-weight:500;color:var(--text-2);text-transform:uppercase;margin:0 0 10px 2px;align-self:center}
+.label{font-size:12px;letter-spacing:.08em;font-weight:500;color:var(--text-2);text-transform:uppercase;margin:0 0 10px 2px}
 .phones{display:flex;gap:56px;flex-wrap:wrap;justify-content:center}
 
 .shot{position:relative;background-size:100% 100%;background-repeat:no-repeat;flex:none}
 .scroll{position:absolute;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;overscroll-behavior:contain}
 .scroll::-webkit-scrollbar{display:none}
 .scroll img{display:block;width:100%;height:auto}
-.glass{position:absolute;left:0;top:0;right:0;pointer-events:none;
-  background:linear-gradient(rgba(255,255,255,.7) 0%,rgba(255,255,255,.6) var(--solid),rgba(255,255,255,0) 100%);
-  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
-  -webkit-mask-image:linear-gradient(#000 var(--solid),transparent);mask-image:linear-gradient(#000 var(--solid),transparent);
-  opacity:0;transition:opacity .2s}
-.scrolled .glass{opacity:1}
 .overlay{position:absolute;left:0;top:0;pointer-events:none;display:block}
+/* glass strip */
+.strip{position:absolute;left:0;top:0;right:0;pointer-events:none;
+  background:linear-gradient(rgba(255,255,255,.88) 0%,rgba(255,255,255,.82) var(--solid),rgba(255,255,255,0) 100%);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  -webkit-mask-image:linear-gradient(#000 var(--solid),transparent);mask-image:linear-gradient(#000 var(--solid),transparent)}
+/* liquid glass capsule */
+.lg{position:absolute;pointer-events:none;background:rgba(255,255,255,.55);
+  -webkit-backdrop-filter:blur(16px) saturate(180%);backdrop-filter:blur(16px) saturate(180%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),inset 0 1px 0 rgba(255,255,255,.6),0 4px 16px rgba(27,25,25,.08)}
+.liq,.liquid .reg{display:none}
+.liquid .liq{display:block}
 
-/* desktop: 1440 × 1024 frame; panel at 343,8 (1089 × 1008, radius 8) */
+/* desktop: 1440 × 1024; panel at 343,8 (1089 × 1008, radius 8) */
 .desk-fit{position:relative}
 .desk{width:1440px;height:1024px;background-image:url(img/desk_base.png);border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(27,25,25,.08),0 12px 40px rgba(27,25,25,.08);transform-origin:top left}
+.liquid .desk{background-image:url(img/desk_base_liquid.png)}
 .panel{position:absolute;left:343px;top:8px;width:1089px;height:1008px;border-radius:8px;overflow:hidden}
 .desk .scroll{left:25px;top:1px;width:1039px;height:854px}
 .desk .scroll .pad{height:88px}
-.desk .glass{height:84px;--solid:76%}
+.desk .scroll .tail{height:0}
+.liquid .desk .scroll{height:1006px}
+.liquid .desk .scroll .tail{height:152px}
+.desk .strip{height:84px;--solid:76%}
+.desk .lg.composer{left:25px;top:855px;width:1039px;height:114px;border-radius:12px}
 
 /* mobile: 402 × 874, radius 36 */
 .phone{width:402px;height:874px;border-radius:36px;overflow:hidden;box-shadow:0 0 0 10px #1b1919,0 0 0 11px #3a3836,0 24px 60px rgba(27,25,25,.25)}
 .room{background-image:url(img/mob_base.png)}
+.liquid .room{background-image:url(img/mob_base_liquid.png)}
 .room .scroll{left:1px;top:1px;width:400px;height:722px}
 .room .scroll .pad{height:115px}
-.room .glass{height:139px;--solid:83%}
+.room .scroll .tail{height:0}
+.liquid .room .scroll{height:872px}
+.liquid .room .scroll .tail{height:84px}
+.room .strip{height:139px;--solid:83%}
+.room .edge{position:absolute;left:0;top:0;width:402px;height:128px;pointer-events:none;
+  background:linear-gradient(rgba(255,255,255,.6),rgba(255,255,255,.35) 50%,rgba(255,255,255,0));
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  -webkit-mask-image:linear-gradient(#000 50%,transparent);mask-image:linear-gradient(#000 50%,transparent)}
+.room .lg{border-radius:22px;height:44px}
 .list{background-image:url(img/list.png)}
 
 .notes{max-width:1520px;margin:0 auto;padding:0 32px 72px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px}
@@ -66,24 +87,32 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
 <header class="top">
   <div>
     <h1>Chat · visual balance</h1>
-    <p>The recommended timeline in a busy, real room: long agent bug reports, reactions, real avatars, unread badges and dots, starred chats and bold unread names. Built from the s.space library in Figma. Scroll the chats; messages pass under the glass header.</p>
+    <p>The recommended timeline in a busy, real room: long agent bug reports, replies and threads, Commons cards, reactions, real avatars, unread badges, starred chats and bold unread names. Built from the s.space library in Figma. Scroll the chats to see the glass.</p>
   </div>
-  <div class="seg" role="group" aria-label="Show">
-    <button aria-pressed="true" data-show="both">Both</button>
-    <button aria-pressed="false" data-show="desktop">Desktop</button>
-    <button aria-pressed="false" data-show="mobile">Mobile</button>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Glass">
+      <button aria-pressed="true" data-glass="strip">Glass header</button>
+      <button aria-pressed="false" data-glass="liquid">Liquid glass</button>
+    </div>
+    <div class="seg" role="group" aria-label="Show">
+      <button aria-pressed="true" data-show="both">Both</button>
+      <button aria-pressed="false" data-show="desktop">Desktop</button>
+      <button aria-pressed="false" data-show="mobile">Mobile</button>
+    </div>
   </div>
 </header>
 
-<main class="stage" data-show="both">
+<main class="stage" id="stage" data-show="both">
   <section class="desk-wrap" id="deskWrap">
     <p class="label">Desktop</p>
     <div class="desk-fit" id="deskFit">
       <div class="shot desk" id="desk">
         <div class="panel" id="dpanel">
-          <div class="scroll" id="dscroll"><div class="pad"></div><img src="img/desk_timeline.png" alt="UI bugs room conversation" width="1039"></div>
-          <div class="glass"></div>
+          <div class="scroll" id="dscroll"><div class="pad"></div><img src="img/desk_timeline.png" alt="UI bugs room conversation" width="1039"><div class="tail"></div></div>
+          <div class="strip"></div>
           <img class="overlay" src="img/desk_header.png" width="1089" height="64" alt="">
+          <div class="lg composer liq"></div>
+          <img class="overlay liq" src="img/desk_composer_liquid.png" style="left:25px;top:855px" width="1039" height="114" alt="">
         </div>
       </div>
     </div>
@@ -94,9 +123,16 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
     <div class="phones">
       <div class="shot phone list" role="img" aria-label="Chat list with starred chats and unread dots"></div>
       <div class="shot phone room" id="room">
-        <div class="scroll" id="mscroll"><div class="pad"></div><img src="img/mob_timeline.png" alt="UI bugs room conversation" width="400"></div>
-        <div class="glass"></div>
-        <img class="overlay" src="img/mob_header.png" width="402" height="116" alt="">
+        <div class="scroll" id="mscroll"><div class="pad"></div><img src="img/mob_timeline.png" alt="UI bugs room conversation" width="400"><div class="tail"></div></div>
+        <div class="strip reg"></div>
+        <img class="overlay reg" src="img/mob_header.png" width="402" height="116" alt="">
+        <div class="edge liq"></div>
+        <div class="lg liq" style="left:12px;top:66px;width:44px"></div>
+        <div class="lg liq" style="left:64px;top:66px;width:137px"></div>
+        <div class="lg liq" style="left:224px;top:66px;width:166px"></div>
+        <div class="lg liq" style="left:12px;top:790px;width:44px"></div>
+        <div class="lg liq" style="left:64px;top:790px;width:326px"></div>
+        <img class="overlay liq" src="img/mob_overlay_liquid.png" width="402" height="874" alt="">
       </div>
     </div>
   </section>
@@ -104,31 +140,33 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
 
 <section class="notes" aria-label="What's in it">
   <div><b>Colour comes from content</b><span>Photos, agent and room artwork, emoji and Commons cards bring the colour. The chrome around them stays white, grey and ink.</span></div>
-  <div><b>Long agent messages</b><span>Bold lead-ins, numbered steps, bullets and code, 15pt on a 24pt line with 6pt between paragraphs.</span></div>
+  <div><b>Replies and threads</b><span>A reply shows the quoted message as a quiet card. A thread shows a one-line “3 replies · last reply” row under the message.</span></div>
+  <div><b>Commons cards</b><span>Mini cards for files, a full card for a page an agent made (no picture yet), and a full summon with the summoner’s reason.</span></div>
   <div><b>Reactions (proposed)</b><span>Neutral chips with a count. Yours gets a grey fill and a darker edge, not a colour. A new Message/Reaction component, pending sign-off.</span></div>
-  <div><b>Unread</b><span>Bold name plus the library badge: a blue count in the desktop sidebar, a blue dot in the mobile chat list. Nothing in the timeline is blue.</span></div>
-  <div><b>Starred</b><span>Its own section at the top of the sidebar and the chat list, matching the app’s Starred filter.</span></div>
-  <div><b>Same rules as before</b><span>Names in ink, a grey Agent tag, the time beside the name, quiet reply cards, and the glass header.</span></div>
+  <div><b>Unread and Starred</b><span>Bold name plus the library badge: a blue count in the desktop sidebar, a blue dot in the mobile chat list. Starred sits at the top of both.</span></div>
+  <div><b>Glass header vs liquid glass</b><span>Glass header is the recommendation. Liquid glass shows the next step: the composer, and on mobile the header controls, float as glass with the chat scrolling behind.</span></div>
 </section>
 
 <script>
-for (const [id, host] of [['dscroll','dpanel'],['mscroll','room']]){
-  const el = document.getElementById(id), h = document.getElementById(host), img = el.querySelector('img');
-  const upd = ()=> h.classList.toggle('scrolled', el.scrollTop > 2);
-  el.addEventListener('scroll', upd, {passive:true});
-  const toEnd = ()=>{ el.scrollTop = el.scrollHeight; upd(); };
+const scrollers = [['dscroll','dpanel'],['mscroll','room']].map(([id,host])=>{
+  const el=document.getElementById(id), img=el.querySelector('img');
+  const toEnd=()=>{ el.scrollTop=el.scrollHeight; };
   img.complete ? toEnd() : img.addEventListener('load', toEnd);
-}
-// fit the 1440 desktop frame to the available width
+  return toEnd;
+});
 (function(){
   const fit=document.getElementById('deskFit'), desk=document.getElementById('desk');
   const run=()=>{ const w=Math.min(1440, fit.parentElement.clientWidth); const s=w/1440; desk.style.transform=`scale(${s})`; fit.style.width=w+'px'; fit.style.height=(1024*s)+'px'; };
   window.addEventListener('resize',run); run();
 })();
-document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed', x===b));
-  document.querySelector('.stage').dataset.show = b.dataset.show;
-}));
+function seg(attr, apply){
+  document.querySelectorAll(`.seg button[data-${attr}]`).forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll(`.seg button[data-${attr}]`).forEach(x=>x.setAttribute('aria-pressed', x===b));
+    apply(b.dataset[attr]);
+  }));
+}
+seg('show', v=>{ document.getElementById('stage').dataset.show=v; });
+seg('glass', v=>{ document.getElementById('stage').classList.toggle('liquid', v==='liquid'); scrollers.forEach(f=>f()); });
 </script>
 </body>
 </html>
