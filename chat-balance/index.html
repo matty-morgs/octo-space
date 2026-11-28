@@ -23,11 +23,14 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
 .seg{display:inline-flex;background:#e9e8e7;border-radius:10px;padding:3px}
 .seg button{font:inherit;border:0;background:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;white-space:nowrap}
 .seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(27,25,25,.12)}
-.stage{max-width:1520px;margin:0 auto;padding:24px 32px 56px;display:flex;flex-direction:column;gap:44px;align-items:center}
+.stage{max-width:1520px;margin:0 auto;padding:24px 32px 48px;display:flex;flex-direction:column;gap:48px;align-items:center}
 .stage > section{width:100%;display:flex;flex-direction:column;align-items:center}
 .stage[data-show="desktop"] .mobile-wrap,.stage[data-show="mobile"] .desk-wrap{display:none}
 .label{font-size:12px;letter-spacing:.08em;font-weight:500;color:var(--text-2);text-transform:uppercase;margin:0 0 10px 2px}
-.phones{display:flex;gap:56px;flex-wrap:wrap;justify-content:center}
+.phones{display:flex;gap:48px;flex-wrap:wrap;justify-content:center;width:100%}
+/* each phone sits in a box that includes its 11px bezel ring, so gaps match the desktop */
+.phone-fit{position:relative;flex:none}
+.phone-fit > .phone{position:absolute;left:11px;top:11px;transform-origin:top left}
 
 .shot{position:relative;background-size:100% 100%;background-repeat:no-repeat;flex:none}
 .scroll{position:absolute;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;overscroll-behavior:contain}
@@ -76,7 +79,7 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
 .room .lg{border-radius:22px;height:44px}
 .list{background-image:url(img/list.png)}
 
-.notes{max-width:1520px;margin:0 auto;padding:0 32px 72px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px}
+.notes{max-width:1520px;margin:0 auto;padding:0 32px 64px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px}
 .notes div{display:grid;gap:2px}
 .notes b{font-weight:600;font-size:14px}
 .notes span{color:var(--text-2);font-size:14px}
@@ -121,8 +124,8 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
   <section class="mobile-wrap">
     <p class="label">Mobile · chat list and room</p>
     <div class="phones">
-      <div class="shot phone list" role="img" aria-label="Chat list with starred chats and unread dots"></div>
-      <div class="shot phone room" id="room">
+      <div class="phone-fit"><div class="shot phone list" role="img" aria-label="Chat list with starred chats and unread dots"></div></div>
+      <div class="phone-fit"><div class="shot phone room" id="room">
         <div class="scroll" id="mscroll"><div class="pad"></div><img src="img/mob_timeline.png" alt="UI bugs room conversation" width="400"><div class="tail"></div></div>
         <div class="strip reg"></div>
         <img class="overlay reg" src="img/mob_header.png" width="402" height="116" alt="">
@@ -133,7 +136,7 @@ body{background:var(--canvas);color:var(--ink);font:15px/1.55 var(--font);-webki
         <div class="lg liq" style="left:12px;top:790px;width:44px"></div>
         <div class="lg liq" style="left:64px;top:790px;width:326px"></div>
         <img class="overlay liq" src="img/mob_overlay_liquid.png" width="402" height="874" alt="">
-      </div>
+      </div></div>
     </div>
   </section>
 </main>
@@ -157,6 +160,13 @@ const scrollers = [['dscroll','dpanel'],['mscroll','room']].map(([id,host])=>{
 (function(){
   const fit=document.getElementById('deskFit'), desk=document.getElementById('desk');
   const run=()=>{ const w=Math.min(1440, fit.parentElement.clientWidth); const s=w/1440; desk.style.transform=`scale(${s})`; fit.style.width=w+'px'; fit.style.height=(1024*s)+'px'; };
+  window.addEventListener('resize',run); run();
+})();
+(function(){
+  const fits=[...document.querySelectorAll('.phone-fit')];
+  const run=()=>{ const avail=fits[0].closest('.phones').clientWidth;
+    const s=Math.min(1,(avail-22)/402);
+    fits.forEach(f=>{ f.style.width=(402*s+22)+'px'; f.style.height=(874*s+22)+'px'; f.firstElementChild.style.transform=`scale(${s})`; }); };
   window.addEventListener('resize',run); run();
 })();
 function seg(attr, apply){
